@@ -1,0 +1,16 @@
+{
+  "include": ["./src/**/*"],
+  "compilerOptions": {
+    "declaration": false,
+    "target": "ES2021",
+    "lib": ["ES2021"],
+    "module": "CommonJS",
+    "outDir": "./dist",
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "esModuleInterop": true,
+    "useUnknownInCatchVariables": false,
+    "resolveJsonModule": true,
+  }
+}
