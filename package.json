@@ -2,6 +2,7 @@
   "name": "plugins-e2e-setup",
   "version": "1.0.0",
   "scripts": {
+    "build": "ncc build src/index.ts",
     "test": "jest"
   },
   "license": "MIT",
