@@ -1,3 +1,6 @@
+const github = require("@actions/github");
+import { setFailed, setOutput, getInput } from "@actions/core";
+
 const core = require("@actions/core");
 const { exec } = require('child_process');
 const util = require('util');
@@ -77,16 +80,32 @@ async function getLastNonDeprecatedVersions(packageName: string) {
 /**
  * Returns list of last three, non-deprecated versions of @c8y/ngx-components package.
  */
-export const collectShellVersions = async () => {
+const collectShellVersions = async () => {
   const packageName = '@c8y/ngx-components';
   const nonDeprecatedVersions = await getLastNonDeprecatedVersions(packageName);
 
   core.setOutput("non_deprecated_shell_versions", JSON.stringify(nonDeprecatedVersions));
-  // const outputPath = process.env.GITHUB_OUTPUT;
-  // if (outputPath) {
-  //   fs.appendFileSync(
-  //     outputPath,
-  //     `non_deprecated_shell_versions=${JSON.stringify(nonDeprecatedVersions)}\n`
-  //   );
-  // }
 }
+
+
+const performAction = async () => {
+  // `who-to-greet` input defined in action metadata file
+  const nameToGreet = getInput("who-to-greet");
+
+  console.log("nameToGreet: ", nameToGreet);
+  if (nameToGreet) {
+    console.log(`Hello ${nameToGreet}!`);
+    const time = new Date().toTimeString();
+    setOutput("time", time);
+    // Get the JSON webhook payload for the event that triggered the workflow
+    const payload = JSON.stringify(github.context.payload, undefined, 2);
+    console.log(`The event payload: ${payload}`);
+  } else {
+    await collectShellVersions();
+  }
+};
+
+performAction().catch((error) => {
+  console.error("An error occurred", error);
+  setFailed(error.message);
+});
