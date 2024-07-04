@@ -5,4 +5,4 @@ outputs:
     description: 'Last three versions of shells that are not deprecated'
 runs:
   using: 'node20'
-  main: 'dist/index.js'
+  main: '../dist/index.js'
