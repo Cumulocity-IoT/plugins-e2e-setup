@@ -3,7 +3,7 @@ import { getInput, setFailed } from "@actions/core";
 const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
-const axios = require("axios");
+import axios from "axios";
 
 const shellVersion = getInput("shell-version");
 console.log(`Shell version is: ${shellVersion}`);
