@@ -1,9 +1,7 @@
-const github = require("@actions/github");
-import { setFailed, setOutput, getInput } from "@actions/core";
-
+import { setFailed } from "@actions/core";
 const core = require("@actions/core");
-const { exec } = require('child_process');
-const util = require('util');
+const { exec } = require("child_process");
+const util = require("util");
 // const fs = require('fs');
 const execPromise = util.promisify(exec);
 
@@ -13,14 +11,16 @@ const execPromise = util.promisify(exec);
  * @returns {Promise<Record<DistTag, Version>>} A promise that resolves to an object containing the distribution tags.
  * @throws Will throw an error if the execution of the npm view command fails.
  */
-async function getDistTagsObject(packageName: string): Promise<Record<string, string>> {
+async function getDistTagsObject(
+  packageName: string
+): Promise<Record<string, string>> {
   try {
     const { stdout } = await execPromise(
       `npm view ${packageName} dist-tags --json`
     );
     return JSON.parse(stdout);
   } catch (error) {
-    console.error('Error fetching dist-tags:', error);
+    console.error("Error fetching dist-tags:", error);
     return {};
   }
 }
@@ -66,14 +66,14 @@ async function getLastNonDeprecatedVersions(packageName: string) {
   let yearlyReleaseVersions = Object.entries(distTagsObject)
     .filter(([key, _]) => yearlyReleasePattern.test(key))
     .slice(0, 3);
-  if (yearlyReleaseVersions.length < 3 && distTagsObject['1018.0-lts']) {
-    yearlyReleaseVersions.push(['1018.0-lts', distTagsObject['1018.0-lts']]);
+  if (yearlyReleaseVersions.length < 3 && distTagsObject["1018.0-lts"]) {
+    yearlyReleaseVersions.push(["1018.0-lts", distTagsObject["1018.0-lts"]]);
   }
 
   return yearlyReleaseVersions.map(([tag, version]) => ({
     tag,
     version,
-    major: version.split('.')[0],
+    major: version.split(".")[0],
   }));
 }
 
@@ -81,28 +81,17 @@ async function getLastNonDeprecatedVersions(packageName: string) {
  * Returns list of last three, non-deprecated versions of @c8y/ngx-components package.
  */
 const collectShellVersions = async () => {
-  const packageName = '@c8y/ngx-components';
+  const packageName = "@c8y/ngx-components";
   const nonDeprecatedVersions = await getLastNonDeprecatedVersions(packageName);
 
-  core.setOutput("non_deprecated_shell_versions", JSON.stringify(nonDeprecatedVersions));
-}
-
+  core.setOutput(
+    "non_deprecated_shell_versions",
+    JSON.stringify(nonDeprecatedVersions)
+  );
+};
 
 const performAction = async () => {
-  // `who-to-greet` input defined in action metadata file
-  const nameToGreet = getInput("who-to-greet");
-
-  console.log("nameToGreet: ", nameToGreet);
-  if (nameToGreet) {
-    console.log(`Hello ${nameToGreet}!`);
-    const time = new Date().toTimeString();
-    setOutput("time", time);
-    // Get the JSON webhook payload for the event that triggered the workflow
-    const payload = JSON.stringify(github.context.payload, undefined, 2);
-    console.log(`The event payload: ${payload}`);
-  } else {
-    await collectShellVersions();
-  }
+  await collectShellVersions();
 };
 
 performAction().catch((error) => {

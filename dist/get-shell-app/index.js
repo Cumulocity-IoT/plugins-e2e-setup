@@ -24916,6 +24916,14 @@ exports["default"] = _default;
 
 /***/ }),
 
+/***/ 3778:
+/***/ ((module) => {
+
+module.exports = eval("require")("axios");
+
+
+/***/ }),
+
 /***/ 4978:
 /***/ ((module) => {
 
@@ -26819,81 +26827,59 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(2186);
-const core = __nccwpck_require__(2186);
-const { exec } = __nccwpck_require__(2081);
-const util = __nccwpck_require__(3837);
-// const fs = require('fs');
-const execPromise = util.promisify(exec);
-/**
- * Fetches the distribution tags for a given npm package.
- * @param {string} packageName - The name of the npm package.
- * @returns {Promise<Record<DistTag, Version>>} A promise that resolves to an object containing the distribution tags.
- * @throws Will throw an error if the execution of the npm view command fails.
- */
-async function getDistTagsObject(packageName) {
-    try {
-        const { stdout } = await execPromise(`npm view ${packageName} dist-tags --json`);
-        return JSON.parse(stdout);
-    }
-    catch (error) {
-        console.error("Error fetching dist-tags:", error);
-        return {};
-    }
+const { execSync } = __nccwpck_require__(2081);
+const fs = __nccwpck_require__(7147);
+const path = __nccwpck_require__(1017);
+const axios = __nccwpck_require__(3778);
+const shellVersion = (0, core_1.getInput)("shell-version");
+console.log(`Shell version is: ${shellVersion}`);
+// Construct the file URL
+const fileUrl = `http://resources.cumulocity.com/webapps/ui-releases/apps-${shellVersion}.tgz`;
+console.log(`Shell file url is: ${fileUrl}`);
+// Download the file
+async function downloadFile(url, outputPath) {
+    const writer = fs.createWriteStream(outputPath);
+    const response = await axios({
+        url,
+        method: "GET",
+        responseType: "stream",
+    });
+    response.data.pipe(writer);
+    return new Promise((resolve, reject) => {
+        writer.on("finish", resolve);
+        writer.on("error", reject);
+    });
 }
-/**
- * Checks if a specific version of a given npm package is deprecated.
- * @param {string} packageName - The name of the npm package.
- * @param {string} version - The version of the npm package.
- * @returns {Promise<boolean>} A promise that resolves to a boolean indicating whether the version is deprecated.
- * @throws Will throw an error if the execution of the npm view command fails.
- */
-async function isDeprecated(packageName, version) {
+async function main() {
     try {
-        const deprecatedInfo = (await execPromise(`npm view ${packageName}@${version} deprecated --json`))?.stdout;
-        return !!deprecatedInfo;
-    }
-    catch (error) {
-        console.error(`Error checking if ${packageName}@${version} is deprecated:`, error);
-        return false;
-    }
-}
-/**
- * Fetches the non-deprecated versions of a given npm package.
- * @param {string} packageName - The name of the npm package.
- * @returns {Promise<{tag: string, version: string, major: string}[]>} A promise that resolves to an array containing the non-deprecated versions.
- */
-async function getLastNonDeprecatedVersions(packageName) {
-    const distTagsObject = await getDistTagsObject(packageName);
-    const nonDeprecatedVersionsObject = {};
-    for (const [tag, version] of Object.entries(distTagsObject)) {
-        const deprecated = await isDeprecated(packageName, version);
-        if (!deprecated) {
-            nonDeprecatedVersionsObject[tag] = version;
+        const tgzFile = `apps-${shellVersion}.tgz`;
+        await downloadFile(fileUrl, tgzFile);
+        if (!fs.existsSync(tgzFile)) {
+            throw new Error("Downloaded file not found!");
         }
+        console.log("File downloaded successfully.");
+        // Extract the downloaded tar.gz file
+        execSync(`tar -xzf ${tgzFile}`);
+        console.log("Apps extracted successfully.");
+        // Unzip Cockpit to dist/apps
+        const cockpitFile = `cockpit-${shellVersion}.zip`;
+        const destinationFolder = path.join("dist", "apps", "cockpit");
+        if (!fs.existsSync(destinationFolder)) {
+            fs.mkdirSync(destinationFolder, { recursive: true });
+        }
+        execSync(`unzip -qq ${cockpitFile} -d ${destinationFolder}`);
+        console.log("Cockpit extracted successfully.");
+        // Echo the elements of dist/apps
+        const distAppsContents = fs.readdirSync(path.join("dist", "apps"));
+        console.log("Contents of dist/apps:", distAppsContents);
     }
-    const yearlyReleasePattern = /^y\d{4}-lts$/;
-    let yearlyReleaseVersions = Object.entries(distTagsObject)
-        .filter(([key, _]) => yearlyReleasePattern.test(key))
-        .slice(0, 3);
-    if (yearlyReleaseVersions.length < 3 && distTagsObject["1018.0-lts"]) {
-        yearlyReleaseVersions.push(["1018.0-lts", distTagsObject["1018.0-lts"]]);
+    catch (error) {
+        console.error(error);
+        process.exit(1);
     }
-    return yearlyReleaseVersions.map(([tag, version]) => ({
-        tag,
-        version,
-        major: version.split(".")[0],
-    }));
 }
-/**
- * Returns list of last three, non-deprecated versions of @c8y/ngx-components package.
- */
-const collectShellVersions = async () => {
-    const packageName = "@c8y/ngx-components";
-    const nonDeprecatedVersions = await getLastNonDeprecatedVersions(packageName);
-    core.setOutput("non_deprecated_shell_versions", JSON.stringify(nonDeprecatedVersions));
-};
 const performAction = async () => {
-    await collectShellVersions();
+    await main();
 };
 performAction().catch((error) => {
     console.error("An error occurred", error);

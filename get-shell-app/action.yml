@@ -1,0 +1,9 @@
+name: 'Get shell app'
+description: 'Download shell application'
+inputs:
+  shell-version:
+    description: 'Version of shell app to download'
+    required: true
+runs:
+  using: 'node20'
+  main: '../dist/get-shell-app/index.js'
