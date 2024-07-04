@@ -1,0 +1,8 @@
+name: 'Collect shell versions'
+description: 'Collect last three shell versions'
+outputs:
+  non_deprecated_shell_versions:
+    description: 'Last three versions of shells that are not deprecated'
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

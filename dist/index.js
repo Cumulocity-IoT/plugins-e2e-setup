@@ -31188,13 +31188,18 @@ const core_1 = __nccwpck_require__(2186);
 const performAction = async () => {
     // `who-to-greet` input defined in action metadata file
     const nameToGreet = (0, core_1.getInput)("who-to-greet");
-    console.log(`Hello ${nameToGreet}!`);
-    const time = new Date().toTimeString();
-    (0, core_1.setOutput)("time", time);
-    // Get the JSON webhook payload for the event that triggered the workflow
-    const payload = JSON.stringify(github.context.payload, undefined, 2);
-    console.log(`The event payload: ${payload}`);
-    await (0, collect_shell_versions_1.collectShellVersions)();
+    console.log("nameToGreet: ", nameToGreet);
+    if (nameToGreet) {
+        console.log(`Hello ${nameToGreet}!`);
+        const time = new Date().toTimeString();
+        (0, core_1.setOutput)("time", time);
+        // Get the JSON webhook payload for the event that triggered the workflow
+        const payload = JSON.stringify(github.context.payload, undefined, 2);
+        console.log(`The event payload: ${payload}`);
+    }
+    else {
+        await (0, collect_shell_versions_1.collectShellVersions)();
+    }
 };
 performAction().catch((error) => {
     console.error("An error occurred", error);
