@@ -24916,62 +24916,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 8351:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const core_1 = __nccwpck_require__(2186);
-const core = __importStar(__nccwpck_require__(2186));
-const package_dist_tags_1 = __nccwpck_require__(1618);
-const filter_out_deprecated_dist_tags_1 = __nccwpck_require__(7703);
-const prepare_shell_versions_output_1 = __nccwpck_require__(6316);
-/**
- * Action collects the last three versions of the shell for the @c8y/ngx-components package and sets the output for use in workflow.
- */
-const performAction = async () => {
-    const packageName = '@c8y/ngx-components';
-    const distTagsObject = await (0, package_dist_tags_1.getDistTagsObject)(packageName);
-    console.log('All dist tags:', distTagsObject);
-    const nonDeprecatedDistTagsObject = await (0, filter_out_deprecated_dist_tags_1.filterOutDeprecatedDistTags)(packageName, distTagsObject);
-    console.log('Non deprecated dist tags:', nonDeprecatedDistTagsObject);
-    const shellVersions = await (0, prepare_shell_versions_output_1.prepareShellVersionsOutput)(nonDeprecatedDistTagsObject);
-    console.log('Last three versions of shell:', shellVersions);
-    core.setOutput('shell_versions', JSON.stringify(shellVersions));
-};
-performAction().catch(error => {
-    console.error('An error occurred', error);
-    (0, core_1.setFailed)(error.message);
-});
-
-
-/***/ }),
-
-/***/ 7703:
+/***/ 7380:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -25042,7 +24987,62 @@ async function isDeprecated(packageName, version) {
 
 /***/ }),
 
-/***/ 1618:
+/***/ 9739:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const core_1 = __nccwpck_require__(2186);
+const core = __importStar(__nccwpck_require__(2186));
+const package_dist_tags_1 = __nccwpck_require__(3706);
+const filter_out_deprecated_dist_tags_1 = __nccwpck_require__(7380);
+const prepare_shell_versions_output_1 = __nccwpck_require__(3382);
+/**
+ * Action collects the last three versions of the shell for the @c8y/ngx-components package and sets the output for use in workflow.
+ */
+const performAction = async () => {
+    const packageName = '@c8y/ngx-components';
+    const distTagsObject = await (0, package_dist_tags_1.getDistTagsObject)(packageName);
+    console.log('All dist tags:', distTagsObject);
+    const nonDeprecatedDistTagsObject = await (0, filter_out_deprecated_dist_tags_1.filterOutDeprecatedDistTags)(packageName, distTagsObject);
+    console.log('Non deprecated dist tags:', nonDeprecatedDistTagsObject);
+    const shellVersions = await (0, prepare_shell_versions_output_1.prepareShellVersionsOutput)(nonDeprecatedDistTagsObject);
+    console.log('Last three versions of shell:', shellVersions);
+    core.setOutput('shell_versions', JSON.stringify(shellVersions));
+};
+performAction().catch(error => {
+    console.error('An error occurred', error);
+    (0, core_1.setFailed)(error.message);
+});
+
+
+/***/ }),
+
+/***/ 3706:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -25096,7 +25096,7 @@ exports.getDistTagsObject = getDistTagsObject;
 
 /***/ }),
 
-/***/ 6316:
+/***/ 3382:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -27026,7 +27026,7 @@ module.exports = parseParams
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __nccwpck_require__(8351);
+/******/ 	var __webpack_exports__ = __nccwpck_require__(9739);
 /******/ 	module.exports = __webpack_exports__;
 /******/ 	
 /******/ })()
