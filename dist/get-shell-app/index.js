@@ -28420,16 +28420,39 @@ exports["default"] = _default;
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(2186);
-const { execSync } = __nccwpck_require__(2081);
-const fs = __nccwpck_require__(7147);
-const path = __nccwpck_require__(1017);
+const child_process_1 = __nccwpck_require__(2081);
+const fs = __importStar(__nccwpck_require__(7147));
+const path = __importStar(__nccwpck_require__(1017));
 const axios_1 = __importDefault(__nccwpck_require__(8757));
-const shellVersion = (0, core_1.getInput)("shell-version");
+const shellVersion = (0, core_1.getInput)('shell-version');
 console.log(`Shell version is: ${shellVersion}`);
 // Construct the file URL
 const fileUrl = `http://resources.cumulocity.com/webapps/ui-releases/apps-${shellVersion}.tgz`;
@@ -28439,13 +28462,13 @@ async function downloadFile(url, outputPath) {
     const writer = fs.createWriteStream(outputPath);
     const response = await (0, axios_1.default)({
         url,
-        method: "GET",
-        responseType: "stream",
+        method: 'GET',
+        responseType: 'stream'
     });
     response.data.pipe(writer);
     return new Promise((resolve, reject) => {
-        writer.on("finish", resolve);
-        writer.on("error", reject);
+        writer.on('finish', resolve);
+        writer.on('error', reject);
     });
 }
 async function main() {
@@ -28453,23 +28476,23 @@ async function main() {
         const tgzFile = `apps-${shellVersion}.tgz`;
         await downloadFile(fileUrl, tgzFile);
         if (!fs.existsSync(tgzFile)) {
-            throw new Error("Downloaded file not found!");
+            throw new Error('Downloaded file not found!');
         }
-        console.log("File downloaded successfully.");
+        console.log('File downloaded successfully.');
         // Extract the downloaded tar.gz file
-        execSync(`tar -xzf ${tgzFile}`);
-        console.log("Apps extracted successfully.");
+        (0, child_process_1.execSync)(`tar -xzf ${tgzFile}`);
+        console.log('Apps extracted successfully.');
         // Unzip Cockpit to dist/apps
         const cockpitFile = `cockpit-${shellVersion}.zip`;
-        const destinationFolder = path.join("dist", "apps", "cockpit");
+        const destinationFolder = path.join('dist', 'apps', 'cockpit');
         if (!fs.existsSync(destinationFolder)) {
             fs.mkdirSync(destinationFolder, { recursive: true });
         }
-        execSync(`unzip -qq ${cockpitFile} -d ${destinationFolder}`);
-        console.log("Cockpit extracted successfully.");
+        (0, child_process_1.execSync)(`unzip -qq ${cockpitFile} -d ${destinationFolder}`);
+        console.log('Cockpit extracted successfully.');
         // Echo the elements of dist/apps
-        const distAppsContents = fs.readdirSync(path.join("dist", "apps"));
-        console.log("Contents of dist/apps:", distAppsContents);
+        const distAppsContents = fs.readdirSync(path.join('dist', 'apps'));
+        console.log('Contents of dist/apps:', distAppsContents);
     }
     catch (error) {
         console.error(error);
@@ -28479,8 +28502,8 @@ async function main() {
 const performAction = async () => {
     await main();
 };
-performAction().catch((error) => {
-    console.error("An error occurred", error);
+performAction().catch(error => {
+    console.error('An error occurred', error);
     (0, core_1.setFailed)(error.message);
 });
 
