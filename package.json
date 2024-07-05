@@ -2,7 +2,7 @@
   "name": "plugins-e2e-setup",
   "version": "1.0.0",
   "scripts": {
-    "build": "ncc build src/index.ts -o dist/hello-world & ncc build src/collect-shell-versions.ts -o dist/collect-shell-versions & ncc build src/get-shell-app.ts -o dist/get-shell-app",
+    "build": "ncc build src/collect-shell-versions.ts -o dist/collect-shell-versions & ncc build src/get-shell-app.ts -o dist/get-shell-app",
     "test": "jest"
   },
   "license": "MIT",
