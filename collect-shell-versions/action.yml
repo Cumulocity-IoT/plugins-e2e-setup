@@ -1,8 +1,13 @@
 name: 'Collect shell versions'
-description: 'Collect last three shell versions'
+description: 'Collect shell versions'
+inputs:
+  include-latest:
+    description: 'Include "latest" tag in the list of shell versions'
+    required: false
+    default: 'false'
 outputs:
-  non_deprecated_shell_versions:
-    description: 'Last three versions of shells that are not deprecated'
+  shell_versions:
+    description: 'List of shell versions'
 runs:
   using: 'node20'
   main: '../dist/collect-shell-versions/index.js'
