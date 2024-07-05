@@ -28415,7 +28415,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 4322:
+/***/ 5075:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -28447,17 +28447,36 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const core_1 = __nccwpck_require__(2186);
-const child_process_1 = __nccwpck_require__(2081);
+exports.downloadShellApp = void 0;
 const fs = __importStar(__nccwpck_require__(7147));
-const path = __importStar(__nccwpck_require__(1017));
 const axios_1 = __importDefault(__nccwpck_require__(8757));
-const shellVersion = (0, core_1.getInput)('shell-version');
-console.log(`Shell version is: ${shellVersion}`);
-// Construct the file URL
-const fileUrl = `http://resources.cumulocity.com/webapps/ui-releases/apps-${shellVersion}.tgz`;
-console.log(`Shell file url is: ${fileUrl}`);
-// Download the file
+/**
+ * Downloads the shell app from the given file URL and returns downloaded file name.
+ * @param shellVersion The shell version to download.
+ * @param fileUrl The URL of the file to download.
+ * @returns The name of the downloaded file.
+ */
+async function downloadShellApp(shellVersion, fileUrl) {
+    try {
+        const tgzFile = `apps-${shellVersion}.tgz`;
+        await downloadFile(fileUrl, tgzFile);
+        if (!fs.existsSync(tgzFile)) {
+            throw new Error('Downloaded file not found!');
+        }
+        console.log('File downloaded successfully.');
+        return tgzFile;
+    }
+    catch (error) {
+        console.error(error);
+        process.exit(1);
+    }
+}
+exports.downloadShellApp = downloadShellApp;
+/**
+ * Downloads the file from the given URL and saves it to the given output path.
+ * @param url The URL of the file to download.
+ * @param outputPath The path to save the downloaded file.
+ */
 async function downloadFile(url, outputPath) {
     const writer = fs.createWriteStream(outputPath);
     const response = await (0, axios_1.default)({
@@ -28471,18 +28490,52 @@ async function downloadFile(url, outputPath) {
         writer.on('error', reject);
     });
 }
-async function main() {
+
+
+/***/ }),
+
+/***/ 3606:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.extractShell = void 0;
+const child_process_1 = __nccwpck_require__(2081);
+const fs = __importStar(__nccwpck_require__(7147));
+const path = __importStar(__nccwpck_require__(1017));
+/**
+ * Extracts the shell app from the given file name to dist/apps.
+ * @param fileName The name of the file to extract.
+ * @param shellVersion The shell version to extract.
+ */
+async function extractShell(fileName, shellVersion) {
     try {
-        const tgzFile = `apps-${shellVersion}.tgz`;
-        await downloadFile(fileUrl, tgzFile);
-        if (!fs.existsSync(tgzFile)) {
-            throw new Error('Downloaded file not found!');
-        }
-        console.log('File downloaded successfully.');
-        // Extract the downloaded tar.gz file
-        (0, child_process_1.execSync)(`tar -xzf ${tgzFile}`);
+        (0, child_process_1.execSync)(`tar -xzf ${fileName}`);
         console.log('Apps extracted successfully.');
-        // Unzip Cockpit to dist/apps
         const cockpitFile = `cockpit-${shellVersion}.zip`;
         const destinationFolder = path.join('dist', 'apps', 'cockpit');
         if (!fs.existsSync(destinationFolder)) {
@@ -28490,17 +28543,43 @@ async function main() {
         }
         (0, child_process_1.execSync)(`unzip -qq ${cockpitFile} -d ${destinationFolder}`);
         console.log('Cockpit extracted successfully.');
-        // Echo the elements of dist/apps
-        const distAppsContents = fs.readdirSync(path.join('dist', 'apps'));
-        console.log('Contents of dist/apps:', distAppsContents);
     }
     catch (error) {
         console.error(error);
         process.exit(1);
     }
 }
+exports.extractShell = extractShell;
+
+
+/***/ }),
+
+/***/ 2610:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const core_1 = __nccwpck_require__(2186);
+const download_shell_app_1 = __nccwpck_require__(5075);
+const extract_shell_1 = __nccwpck_require__(3606);
+const fs_1 = __importDefault(__nccwpck_require__(7147));
+const path_1 = __importDefault(__nccwpck_require__(1017));
+/**
+ * This action downloads the shell app, extracts it to dist/apps folder.
+ */
 const performAction = async () => {
-    await main();
+    const shellVersion = (0, core_1.getInput)('shell-version');
+    console.log(`Shell version is: ${shellVersion}`);
+    const fileUrl = `http://resources.cumulocity.com/webapps/ui-releases/apps-${shellVersion}.tgz`;
+    console.log(`Shell file url is: ${fileUrl}`);
+    const zipFileName = await (0, download_shell_app_1.downloadShellApp)(shellVersion, fileUrl);
+    await (0, extract_shell_1.extractShell)(zipFileName, shellVersion);
+    const distAppsContents = fs_1.default.readdirSync(path_1.default.join('dist', 'apps'));
+    console.log('Contents of dist/apps:', distAppsContents);
 };
 performAction().catch(error => {
     console.error('An error occurred', error);
@@ -35138,7 +35217,7 @@ module.exports = JSON.parse('{"application/1d-interleaved-parityfec":{"source":"
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __nccwpck_require__(4322);
+/******/ 	var __webpack_exports__ = __nccwpck_require__(2610);
 /******/ 	module.exports = __webpack_exports__;
 /******/ 	
 /******/ })()
