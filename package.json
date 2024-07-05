@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "scripts": {
     "build": "ncc build src/collect-shell-versions.ts -o dist/collect-shell-versions & ncc build src/get-shell-app.ts -o dist/get-shell-app",
-    "test": "jest"
+    "lint": "eslint --ext .ts .",
+    "lint:staged": "lint-staged",
+    "prepare": "husky install"
   },
   "license": "MIT",
   "dependencies": {
