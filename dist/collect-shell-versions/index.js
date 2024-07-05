@@ -25025,12 +25025,17 @@ const prepare_shell_versions_output_1 = __nccwpck_require__(3382);
  * Action collects the last three versions of the shell for the @c8y/ngx-components package and sets the output for use in workflow.
  */
 const performAction = async () => {
+    const includeLatest = (0, core_1.getInput)('include-latest') === 'true';
+    console.log('Inputs: include-latest', (0, core_1.getInput)('include-latest'));
+    // const exactTags: string = getInput('exact-tags');
+    // const versionsLength: string = getInput('versions-length');
+    // const includeDeprecated: boolean = getInput('include-deprecated') === 'true';
     const packageName = '@c8y/ngx-components';
     const distTagsObject = await (0, package_dist_tags_1.getDistTagsObject)(packageName);
     console.log('All dist tags:', distTagsObject);
     const nonDeprecatedDistTagsObject = await (0, filter_out_deprecated_dist_tags_1.filterOutDeprecatedDistTags)(packageName, distTagsObject);
     console.log('Non deprecated dist tags:', nonDeprecatedDistTagsObject);
-    const shellVersions = await (0, prepare_shell_versions_output_1.prepareShellVersionsOutput)(nonDeprecatedDistTagsObject);
+    const shellVersions = (0, prepare_shell_versions_output_1.prepareShellVersionsOutput)(nonDeprecatedDistTagsObject, includeLatest);
     console.log('Last three versions of shell:', shellVersions);
     core.setOutput('shell_versions', JSON.stringify(shellVersions));
 };
@@ -25106,23 +25111,37 @@ exports.prepareShellVersionsOutput = void 0;
 /**
  * Selects last three yearly releases. If there are less than three yearly releases, it will add the 1018.0-lts version.
  * @param {DistTagsObject} distTagsObject - Object containing the distribution tags of a package and it's versions.
+ * @param includeLatest - Indicates if 'latest' tag version should be included in list.
+ * @param outputMaxLength - Maximum length of shell versions list.
  * @returns {Promise<ShellVersionsOutput[]>} A promise that resolves to an array containing versions data.
  */
-async function prepareShellVersionsOutput(distTagsObject) {
-    const yearlyReleasePattern = /^y\d{4}-lts$/;
-    const yearlyReleaseVersions = Object.entries(distTagsObject)
-        .filter(([key, _]) => yearlyReleasePattern.test(key))
-        .slice(0, 3);
-    if (yearlyReleaseVersions.length < 3 && distTagsObject['1018.0-lts']) {
-        yearlyReleaseVersions.push(['1018.0-lts', distTagsObject['1018.0-lts']]);
+function prepareShellVersionsOutput(distTagsObject, includeLatest, outputMaxLength = 3) {
+    let versions = [];
+    if (includeLatest) {
+        versions.push(getShellVersionOutputElement(['latest', distTagsObject['latest']]));
     }
-    return yearlyReleaseVersions.map(([tag, version]) => ({
+    const yearlyReleasePattern = /^y\d{4}-lts$/;
+    const yearlyReleaseKeys = Object.keys(distTagsObject)
+        .filter(key => yearlyReleasePattern.test(key))
+        .sort((a, b) => b.localeCompare(a));
+    const legacyReleasePattern = /^101\d\.0-lts$/;
+    const legacyReleaseKeys = Object.keys(distTagsObject)
+        .filter(key => legacyReleasePattern.test(key))
+        .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
+    versions = [
+        ...versions,
+        ...[...yearlyReleaseKeys, ...legacyReleaseKeys].map(tag => getShellVersionOutputElement([tag, distTagsObject[tag]]))
+    ];
+    return versions.slice(0, outputMaxLength);
+}
+exports.prepareShellVersionsOutput = prepareShellVersionsOutput;
+function getShellVersionOutputElement([tag, version]) {
+    return {
         tag,
         version,
         major: version.split('.')[0]
-    }));
+    };
 }
-exports.prepareShellVersionsOutput = prepareShellVersionsOutput;
 
 
 /***/ }),
