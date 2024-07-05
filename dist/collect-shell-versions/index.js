@@ -24916,6 +24916,217 @@ exports["default"] = _default;
 
 /***/ }),
 
+/***/ 8351:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const core_1 = __nccwpck_require__(2186);
+const core = __importStar(__nccwpck_require__(2186));
+const package_dist_tags_1 = __nccwpck_require__(1618);
+const filter_out_deprecated_dist_tags_1 = __nccwpck_require__(7703);
+const prepare_shell_versions_output_1 = __nccwpck_require__(6316);
+/**
+ * Action collects the last three versions of the shell for the @c8y/ngx-components package and sets the output for use in workflow.
+ */
+const performAction = async () => {
+    const packageName = '@c8y/ngx-components';
+    const distTagsObject = await (0, package_dist_tags_1.getDistTagsObject)(packageName);
+    console.log('All dist tags:', distTagsObject);
+    const nonDeprecatedDistTagsObject = await (0, filter_out_deprecated_dist_tags_1.filterOutDeprecatedDistTags)(packageName, distTagsObject);
+    console.log('Non deprecated dist tags:', nonDeprecatedDistTagsObject);
+    const shellVersions = await (0, prepare_shell_versions_output_1.prepareShellVersionsOutput)(nonDeprecatedDistTagsObject);
+    console.log('Last three versions of shell:', shellVersions);
+    core.setOutput('shell_versions', JSON.stringify(shellVersions));
+};
+performAction().catch(error => {
+    console.error('An error occurred', error);
+    (0, core_1.setFailed)(error.message);
+});
+
+
+/***/ }),
+
+/***/ 7703:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.filterOutDeprecatedDistTags = void 0;
+const child_process_1 = __nccwpck_require__(2081);
+const util = __importStar(__nccwpck_require__(3837));
+const execPromise = util.promisify(child_process_1.exec);
+/**
+ * Filters out deprecated versions from the distribution tags of a package.
+ * @param {string} packageName - Name of the package.
+ * @param {DistTagsObject} distTags - Object containing the distribution tags of a package and versions.
+ * @returns {Promise<DistTagsObject>} A promise that resolves to an object containing non deprecated dist tags and versions.
+ */
+async function filterOutDeprecatedDistTags(packageName, distTags) {
+    const nonDeprecatedVersionsObject = {};
+    for (const [tag, version] of Object.entries(distTags)) {
+        const deprecated = await isDeprecated(packageName, version);
+        if (!deprecated) {
+            nonDeprecatedVersionsObject[tag] = version;
+        }
+    }
+    return nonDeprecatedVersionsObject;
+}
+exports.filterOutDeprecatedDistTags = filterOutDeprecatedDistTags;
+/**
+ * Checks if a specific version of a given npm package is deprecated.
+ * @param {string} packageName - The name of the npm package.
+ * @param {string} version - The version of the npm package.
+ * @returns {Promise<boolean>} A promise that resolves to a boolean indicating whether the version is deprecated.
+ * @throws Will throw an error if the execution of the npm view command fails.
+ */
+async function isDeprecated(packageName, version) {
+    try {
+        const deprecatedInfo = (await execPromise(`npm view ${packageName}@${version} deprecated --json`))?.stdout;
+        return !!deprecatedInfo;
+    }
+    catch (error) {
+        console.error(`Error checking if ${packageName}@${version} is deprecated:`, error);
+        return false;
+    }
+}
+
+
+/***/ }),
+
+/***/ 1618:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getDistTagsObject = void 0;
+const child_process_1 = __nccwpck_require__(2081);
+const util = __importStar(__nccwpck_require__(3837));
+const execPromise = util.promisify(child_process_1.exec);
+/**
+ * Fetches the distribution tags for a given npm package.
+ * @param {string} packageName - The name of the npm package.
+ * @returns {Promise<DistTagsObject>} A promise that resolves to an object containing the distribution tags.
+ * @throws Will throw an error if the execution of the npm view command fails.
+ */
+async function getDistTagsObject(packageName) {
+    try {
+        const { stdout } = await execPromise(`npm view ${packageName} dist-tags --json`);
+        return JSON.parse(stdout);
+    }
+    catch (error) {
+        console.error('Error fetching dist-tags:', error);
+        return {};
+    }
+}
+exports.getDistTagsObject = getDistTagsObject;
+
+
+/***/ }),
+
+/***/ 6316:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.prepareShellVersionsOutput = void 0;
+/**
+ * Selects last three yearly releases. If there are less than three yearly releases, it will add the 1018.0-lts version.
+ * @param {DistTagsObject} distTagsObject - Object containing the distribution tags of a package and it's versions.
+ * @returns {Promise<ShellVersionsOutput[]>} A promise that resolves to an array containing versions data.
+ */
+async function prepareShellVersionsOutput(distTagsObject) {
+    const yearlyReleasePattern = /^y\d{4}-lts$/;
+    const yearlyReleaseVersions = Object.entries(distTagsObject)
+        .filter(([key, _]) => yearlyReleasePattern.test(key))
+        .slice(0, 3);
+    if (yearlyReleaseVersions.length < 3 && distTagsObject['1018.0-lts']) {
+        yearlyReleaseVersions.push(['1018.0-lts', distTagsObject['1018.0-lts']]);
+    }
+    return yearlyReleaseVersions.map(([tag, version]) => ({
+        tag,
+        version,
+        major: version.split('.')[0]
+    }));
+}
+exports.prepareShellVersionsOutput = prepareShellVersionsOutput;
+
+
+/***/ }),
+
 /***/ 4978:
 /***/ ((module) => {
 
@@ -26811,97 +27022,12 @@ module.exports = parseParams
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
 /******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be in strict mode.
-(() => {
-"use strict";
-var exports = __webpack_exports__;
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const core_1 = __nccwpck_require__(2186);
-const core = __nccwpck_require__(2186);
-const { exec } = __nccwpck_require__(2081);
-const util = __nccwpck_require__(3837);
-// const fs = require('fs');
-const execPromise = util.promisify(exec);
-/**
- * Fetches the distribution tags for a given npm package.
- * @param {string} packageName - The name of the npm package.
- * @returns {Promise<Record<DistTag, Version>>} A promise that resolves to an object containing the distribution tags.
- * @throws Will throw an error if the execution of the npm view command fails.
- */
-async function getDistTagsObject(packageName) {
-    try {
-        const { stdout } = await execPromise(`npm view ${packageName} dist-tags --json`);
-        return JSON.parse(stdout);
-    }
-    catch (error) {
-        console.error("Error fetching dist-tags:", error);
-        return {};
-    }
-}
-/**
- * Checks if a specific version of a given npm package is deprecated.
- * @param {string} packageName - The name of the npm package.
- * @param {string} version - The version of the npm package.
- * @returns {Promise<boolean>} A promise that resolves to a boolean indicating whether the version is deprecated.
- * @throws Will throw an error if the execution of the npm view command fails.
- */
-async function isDeprecated(packageName, version) {
-    try {
-        const deprecatedInfo = (await execPromise(`npm view ${packageName}@${version} deprecated --json`))?.stdout;
-        return !!deprecatedInfo;
-    }
-    catch (error) {
-        console.error(`Error checking if ${packageName}@${version} is deprecated:`, error);
-        return false;
-    }
-}
-/**
- * Fetches the non-deprecated versions of a given npm package.
- * @param {string} packageName - The name of the npm package.
- * @returns {Promise<{tag: string, version: string, major: string}[]>} A promise that resolves to an array containing the non-deprecated versions.
- */
-async function getLastNonDeprecatedVersions(packageName) {
-    const distTagsObject = await getDistTagsObject(packageName);
-    const nonDeprecatedVersionsObject = {};
-    for (const [tag, version] of Object.entries(distTagsObject)) {
-        const deprecated = await isDeprecated(packageName, version);
-        if (!deprecated) {
-            nonDeprecatedVersionsObject[tag] = version;
-        }
-    }
-    const yearlyReleasePattern = /^y\d{4}-lts$/;
-    let yearlyReleaseVersions = Object.entries(distTagsObject)
-        .filter(([key, _]) => yearlyReleasePattern.test(key))
-        .slice(0, 3);
-    if (yearlyReleaseVersions.length < 3 && distTagsObject["1018.0-lts"]) {
-        yearlyReleaseVersions.push(["1018.0-lts", distTagsObject["1018.0-lts"]]);
-    }
-    return yearlyReleaseVersions.map(([tag, version]) => ({
-        tag,
-        version,
-        major: version.split(".")[0],
-    }));
-}
-/**
- * Returns list of last three, non-deprecated versions of @c8y/ngx-components package.
- */
-const collectShellVersions = async () => {
-    const packageName = "@c8y/ngx-components";
-    const nonDeprecatedVersions = await getLastNonDeprecatedVersions(packageName);
-    core.setOutput("non_deprecated_shell_versions", JSON.stringify(nonDeprecatedVersions));
-};
-const performAction = async () => {
-    await collectShellVersions();
-};
-performAction().catch((error) => {
-    console.error("An error occurred", error);
-    (0, core_1.setFailed)(error.message);
-});
-
-})();
-
-module.exports = __webpack_exports__;
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module is referenced by other modules so it can't be inlined
+/******/ 	var __webpack_exports__ = __nccwpck_require__(8351);
+/******/ 	module.exports = __webpack_exports__;
+/******/ 	
 /******/ })()
 ;
