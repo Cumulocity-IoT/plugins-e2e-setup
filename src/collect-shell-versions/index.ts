@@ -11,7 +11,9 @@ const performAction = async () => {
 	const includeLatest: boolean = getInput('include-latest') === 'true';
 	console.log('Inputs: include-latest', getInput('include-latest'));
 	// const exactTags: string = getInput('exact-tags');
-	// const versionsLength: string = getInput('versions-length');
+	const versionsLength: number = parseInt(getInput('versions-length'), 10);
+	console.log('Inputs: versions-length', getInput('versions-length'));
+	console.log('typeof versionsLength', typeof versionsLength);
 	// const includeDeprecated: boolean = getInput('include-deprecated') === 'true';
 
 	const packageName = '@c8y/ngx-components';
@@ -26,7 +28,8 @@ const performAction = async () => {
 
 	const shellVersions = prepareShellVersionsOutput(
 		nonDeprecatedDistTagsObject,
-		includeLatest
+		includeLatest,
+		versionsLength
 	);
 	console.log('Last three versions of shell:', shellVersions);
 	core.setOutput('shell_versions', JSON.stringify(shellVersions));

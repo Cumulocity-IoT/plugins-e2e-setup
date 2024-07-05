@@ -5,6 +5,10 @@ inputs:
     description: 'Include "latest" tag in the list of shell versions'
     required: false
     default: 'false'
+  versions-length:
+    description: 'Indicates how many versions should be in output'
+    required: false
+    default: '3'
 outputs:
   shell_versions:
     description: 'List of shell versions'

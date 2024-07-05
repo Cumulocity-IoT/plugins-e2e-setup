@@ -15,7 +15,7 @@ export type ShellVersionsOutput = {
 export function prepareShellVersionsOutput(
 	distTagsObject: DistTagsObject,
 	includeLatest: boolean,
-	outputMaxLength = 3
+	outputMaxLength: number
 ): ShellVersionsOutput[] {
 	let versions: ShellVersionsOutput[] = [];
 	if (includeLatest) {

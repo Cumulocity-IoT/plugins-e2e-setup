@@ -17,7 +17,7 @@ const distTagObject = {
 
 describe('prepareShellVersionsOutput', () => {
 	test('when default values are applied', () => {
-		const result = prepareShellVersionsOutput(distTagObject, false);
+		const result = prepareShellVersionsOutput(distTagObject, false, 3);
 
 		expect(result).toEqual([
 			{ tag: 'y2025-lts', version: '1020.0.19', major: '1020' },
@@ -27,7 +27,7 @@ describe('prepareShellVersionsOutput', () => {
 	});
 
 	test('when include latest is true', () => {
-		const result = prepareShellVersionsOutput(distTagObject, true);
+		const result = prepareShellVersionsOutput(distTagObject, true, 3);
 
 		expect(result).toEqual([
 			{ tag: 'latest', version: '1020.0.19', major: '1020' },

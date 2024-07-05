@@ -25028,14 +25028,16 @@ const performAction = async () => {
     const includeLatest = (0, core_1.getInput)('include-latest') === 'true';
     console.log('Inputs: include-latest', (0, core_1.getInput)('include-latest'));
     // const exactTags: string = getInput('exact-tags');
-    // const versionsLength: string = getInput('versions-length');
+    const versionsLength = parseInt((0, core_1.getInput)('versions-length'), 10);
+    console.log('Inputs: versions-length', (0, core_1.getInput)('versions-length'));
+    console.log('typeof versionsLength', typeof versionsLength);
     // const includeDeprecated: boolean = getInput('include-deprecated') === 'true';
     const packageName = '@c8y/ngx-components';
     const distTagsObject = await (0, package_dist_tags_1.getDistTagsObject)(packageName);
     console.log('All dist tags:', distTagsObject);
     const nonDeprecatedDistTagsObject = await (0, filter_out_deprecated_dist_tags_1.filterOutDeprecatedDistTags)(packageName, distTagsObject);
     console.log('Non deprecated dist tags:', nonDeprecatedDistTagsObject);
-    const shellVersions = (0, prepare_shell_versions_output_1.prepareShellVersionsOutput)(nonDeprecatedDistTagsObject, includeLatest);
+    const shellVersions = (0, prepare_shell_versions_output_1.prepareShellVersionsOutput)(nonDeprecatedDistTagsObject, includeLatest, versionsLength);
     console.log('Last three versions of shell:', shellVersions);
     core.setOutput('shell_versions', JSON.stringify(shellVersions));
 };
@@ -25115,7 +25117,7 @@ exports.prepareShellVersionsOutput = void 0;
  * @param outputMaxLength - Maximum length of shell versions list.
  * @returns {Promise<ShellVersionsOutput[]>} A promise that resolves to an array containing versions data.
  */
-function prepareShellVersionsOutput(distTagsObject, includeLatest, outputMaxLength = 3) {
+function prepareShellVersionsOutput(distTagsObject, includeLatest, outputMaxLength) {
     let versions = [];
     if (includeLatest) {
         versions.push(getShellVersionOutputElement(['latest', distTagsObject['latest']]));
