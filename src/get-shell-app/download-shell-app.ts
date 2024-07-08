@@ -6,13 +6,14 @@ type ZippedFileName = string;
 /**
  * Downloads the shell app from the given file URL and returns downloaded file name.
  * @param shellVersion The shell version to download.
- * @param fileUrl The URL of the file to download.
  * @returns The name of the downloaded file.
  */
 export async function downloadShellApp(
-	shellVersion: string,
-	fileUrl: string
+	shellVersion: string
 ): Promise<ZippedFileName> {
+	const fileUrl = `http://resources.cumulocity.com/webapps/ui-releases/apps-${shellVersion}.tgz`;
+	console.log(`Shell file url is: ${fileUrl}`);
+
 	try {
 		const tgzFile = `apps-${shellVersion}.tgz`;
 		await downloadFile(fileUrl, tgzFile);

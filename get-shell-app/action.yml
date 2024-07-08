@@ -2,11 +2,15 @@ name: 'Get shell app'
 description: 'Download shell application'
 inputs:
   shell-name:
-    description: 'Name of shell app to download. Possible options are "cockpit", "devicemanagement", "administration"'
+    description: 'Name of shell app to download. Possible options are "cockpit", "devicemanagement", "administration".'
     required: true
   shell-version:
     description: 'Version of shell app to download'
     required: true
+  shell-path:
+    description: 'Path that shell app is supposed to be extracted to.'
+    required: false
+    default: 'dist/apps'
 runs:
   using: 'node20'
   main: '../dist/get-shell-app/index.js'

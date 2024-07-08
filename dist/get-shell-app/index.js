@@ -28453,10 +28453,11 @@ const axios_1 = __importDefault(__nccwpck_require__(8757));
 /**
  * Downloads the shell app from the given file URL and returns downloaded file name.
  * @param shellVersion The shell version to download.
- * @param fileUrl The URL of the file to download.
  * @returns The name of the downloaded file.
  */
-async function downloadShellApp(shellVersion, fileUrl) {
+async function downloadShellApp(shellVersion) {
+    const fileUrl = `http://resources.cumulocity.com/webapps/ui-releases/apps-${shellVersion}.tgz`;
+    console.log(`Shell file url is: ${fileUrl}`);
     try {
         const tgzFile = `apps-${shellVersion}.tgz`;
         await downloadFile(fileUrl, tgzFile);
@@ -28532,13 +28533,14 @@ const path = __importStar(__nccwpck_require__(1017));
  * @param shellName Name of the shell
  * @param zipFileName The name of the file to extract.
  * @param shellVersion The shell version to extract.
+ * @param destinationPath Path for extracting shell app
  */
-async function extractShell(shellName, zipFileName, shellVersion) {
+async function extractShell(shellName, zipFileName, shellVersion, destinationPath) {
     try {
         (0, child_process_1.execSync)(`tar -xzf ${zipFileName}`);
         console.log('Apps extracted successfully.');
         const shellFile = `${shellName}-${shellVersion}.zip`;
-        const destinationFolder = path.join('dist', 'apps', shellName);
+        const destinationFolder = path.join(destinationPath, shellName);
         if (!fs.existsSync(destinationFolder)) {
             fs.mkdirSync(destinationFolder, { recursive: true });
         }
@@ -28568,7 +28570,6 @@ const core_1 = __nccwpck_require__(2186);
 const download_shell_app_1 = __nccwpck_require__(5075);
 const extract_shell_1 = __nccwpck_require__(3606);
 const fs_1 = __importDefault(__nccwpck_require__(7147));
-const path_1 = __importDefault(__nccwpck_require__(1017));
 const SHELL_NAMES = ['cockpit', 'devicemanagement', 'administration'];
 /**
  * This action downloads the shell app, extracts it to dist/apps folder.
@@ -28582,13 +28583,14 @@ const performAction = async () => {
         throw new Error(`Shell "${shellName}" is not supported. Possible shells are: ${SHELL_NAMES.join(', ')}`);
     }
     const shellVersion = (0, core_1.getInput)('shell-version');
-    console.log(`Shell version is: ${shellVersion}`);
-    const fileUrl = `http://resources.cumulocity.com/webapps/ui-releases/apps-${shellVersion}.tgz`;
-    console.log(`Shell file url is: ${fileUrl}`);
-    const zipFileName = await (0, download_shell_app_1.downloadShellApp)(shellVersion, fileUrl);
-    await (0, extract_shell_1.extractShell)(shellName, zipFileName, shellVersion);
-    const distAppsContents = fs_1.default.readdirSync(path_1.default.join('dist', 'apps'));
-    console.log('Contents of dist/apps:', distAppsContents);
+    if (!shellVersion) {
+        throw new Error(`"shell-version" input is required.`);
+    }
+    const shellPath = (0, core_1.getInput)('shell-path');
+    const zipFileName = await (0, download_shell_app_1.downloadShellApp)(shellVersion);
+    await (0, extract_shell_1.extractShell)(shellName, zipFileName, shellVersion, shellPath);
+    const distAppsContents = fs_1.default.readdirSync(shellPath);
+    console.log(`Contents of provided app folder ${shellPath}:`, distAppsContents);
 };
 performAction().catch(error => {
     console.error('An error occurred', error);

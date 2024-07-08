@@ -7,18 +7,20 @@ import * as path from 'path';
  * @param shellName Name of the shell
  * @param zipFileName The name of the file to extract.
  * @param shellVersion The shell version to extract.
+ * @param destinationPath Path for extracting shell app
  */
 export async function extractShell(
 	shellName: string,
 	zipFileName: string,
-	shellVersion: string
+	shellVersion: string,
+	destinationPath: string
 ): Promise<void> {
 	try {
 		execSync(`tar -xzf ${zipFileName}`);
 		console.log('Apps extracted successfully.');
 
 		const shellFile = `${shellName}-${shellVersion}.zip`;
-		const destinationFolder = path.join('dist', 'apps', shellName);
+		const destinationFolder = path.join(destinationPath, shellName);
 
 		if (!fs.existsSync(destinationFolder)) {
 			fs.mkdirSync(destinationFolder, { recursive: true });
