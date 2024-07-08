@@ -4,10 +4,20 @@ import { extractShell } from './extract-shell';
 import fs from 'fs';
 import path from 'path';
 
+const SHELL_NAMES = ['cockpit', 'devicemanagement', 'administration'];
+
 /**
  * This action downloads the shell app, extracts it to dist/apps folder.
  */
 const performAction = async () => {
+	const shellName = getInput('shell-name');
+	if (!SHELL_NAMES.includes(shellName)) {
+		throw new Error(
+			`Shell "${shellName}" is not supported. Possible shells are: ${SHELL_NAMES.join(
+				', '
+			)}`
+		);
+	}
 	const shellVersion = getInput('shell-version');
 	console.log(`Shell version is: ${shellVersion}`);
 
@@ -16,7 +26,7 @@ const performAction = async () => {
 
 	const zipFileName = await downloadShellApp(shellVersion, fileUrl);
 
-	await extractShell(zipFileName, shellVersion);
+	await extractShell(shellName, zipFileName, shellVersion);
 
 	const distAppsContents = fs.readdirSync(path.join('dist', 'apps'));
 	console.log('Contents of dist/apps:', distAppsContents);

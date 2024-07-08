@@ -28529,20 +28529,21 @@ const fs = __importStar(__nccwpck_require__(7147));
 const path = __importStar(__nccwpck_require__(1017));
 /**
  * Extracts the shell app from the given file name to dist/apps.
- * @param fileName The name of the file to extract.
+ * @param shellName Name of the shell
+ * @param zipFileName The name of the file to extract.
  * @param shellVersion The shell version to extract.
  */
-async function extractShell(fileName, shellVersion) {
+async function extractShell(shellName, zipFileName, shellVersion) {
     try {
-        (0, child_process_1.execSync)(`tar -xzf ${fileName}`);
+        (0, child_process_1.execSync)(`tar -xzf ${zipFileName}`);
         console.log('Apps extracted successfully.');
-        const cockpitFile = `cockpit-${shellVersion}.zip`;
-        const destinationFolder = path.join('dist', 'apps', 'cockpit');
+        const shellFile = `${shellName}-${shellVersion}.zip`;
+        const destinationFolder = path.join('dist', 'apps', shellName);
         if (!fs.existsSync(destinationFolder)) {
             fs.mkdirSync(destinationFolder, { recursive: true });
         }
-        (0, child_process_1.execSync)(`unzip -qq ${cockpitFile} -d ${destinationFolder}`);
-        console.log('Cockpit extracted successfully.');
+        (0, child_process_1.execSync)(`unzip -qq ${shellFile} -d ${destinationFolder}`);
+        console.log(`Shell ${shellName} extracted successfully.`);
     }
     catch (error) {
         console.error(error);
@@ -28568,16 +28569,21 @@ const download_shell_app_1 = __nccwpck_require__(5075);
 const extract_shell_1 = __nccwpck_require__(3606);
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 const path_1 = __importDefault(__nccwpck_require__(1017));
+const SHELL_NAMES = ['cockpit', 'devicemanagement', 'administration'];
 /**
  * This action downloads the shell app, extracts it to dist/apps folder.
  */
 const performAction = async () => {
+    const shellName = (0, core_1.getInput)('shell-name');
+    if (!SHELL_NAMES.includes(shellName)) {
+        throw new Error(`Shell "${shellName}" is not supported. Possible shells are: ${SHELL_NAMES.join(', ')}`);
+    }
     const shellVersion = (0, core_1.getInput)('shell-version');
     console.log(`Shell version is: ${shellVersion}`);
     const fileUrl = `http://resources.cumulocity.com/webapps/ui-releases/apps-${shellVersion}.tgz`;
     console.log(`Shell file url is: ${fileUrl}`);
     const zipFileName = await (0, download_shell_app_1.downloadShellApp)(shellVersion, fileUrl);
-    await (0, extract_shell_1.extractShell)(zipFileName, shellVersion);
+    await (0, extract_shell_1.extractShell)(shellName, zipFileName, shellVersion);
     const distAppsContents = fs_1.default.readdirSync(path_1.default.join('dist', 'apps'));
     console.log('Contents of dist/apps:', distAppsContents);
 };

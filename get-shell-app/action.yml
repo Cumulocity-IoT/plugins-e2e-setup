@@ -1,6 +1,10 @@
 name: 'Get shell app'
 description: 'Download shell application'
 inputs:
+  shell-name:
+    description: 'Name of shell app to download. Possible options are "cockpit", "devicemanagement", "administration"'
+    required: true
+    default: 'cockpit'
   shell-version:
     description: 'Version of shell app to download'
     required: true
