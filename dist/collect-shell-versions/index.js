@@ -25127,7 +25127,7 @@ function prepareShellVersionsOutput(distTagsObject, includeLatest, outputMaxLeng
             .filter(tag => {
             const version = distTagsObject[tag];
             if (!version) {
-                console.log(`Tag ${tag} does not exist!`);
+                console.log(`Tag ${tag} is deprecated or does not exist!`);
             }
             return !!version;
         })
