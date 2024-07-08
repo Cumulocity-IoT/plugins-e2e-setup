@@ -12,8 +12,7 @@ inputs:
   versions-length:
     description: 'Indicates how many versions should be in output'
     required: false
-    type: number
-    default: 3
+    default: '3'
   include-deprecated:
       description: 'Include deprecated dist tags in output'
       required: false
