@@ -11,6 +11,13 @@ const SHELL_NAMES = ['cockpit', 'devicemanagement', 'administration'];
  */
 const performAction = async () => {
 	const shellName = getInput('shell-name');
+	if (!shellName) {
+		throw new Error(
+			`"shell-name" input is required. Possible shells are: ${SHELL_NAMES.join(
+				', '
+			)}`
+		);
+	}
 	if (!SHELL_NAMES.includes(shellName)) {
 		throw new Error(
 			`Shell "${shellName}" is not supported. Possible shells are: ${SHELL_NAMES.join(
