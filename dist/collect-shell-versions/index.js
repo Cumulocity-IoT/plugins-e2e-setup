@@ -25022,23 +25022,22 @@ const package_dist_tags_1 = __nccwpck_require__(3706);
 const filter_out_deprecated_dist_tags_1 = __nccwpck_require__(7380);
 const prepare_shell_versions_output_1 = __nccwpck_require__(3382);
 /**
- * Action collects the last three versions of the shell for the @c8y/ngx-components package and sets the output for use in workflow.
+ * Action collects versions of the shell for the @c8y/ngx-components package and sets the output for use in workflow.
  */
 const performAction = async () => {
     const includeLatest = (0, core_1.getInput)('include-latest') === 'true';
-    console.log('Inputs: include-latest', (0, core_1.getInput)('include-latest'));
     // const exactTags: string = getInput('exact-tags');
     const versionsLength = parseInt((0, core_1.getInput)('versions-length'), 10);
-    console.log('Inputs: versions-length', (0, core_1.getInput)('versions-length'));
-    console.log('typeof versionsLength', typeof versionsLength);
-    // const includeDeprecated: boolean = getInput('include-deprecated') === 'true';
+    const includeDeprecated = (0, core_1.getInput)('include-deprecated') === 'true';
     const packageName = '@c8y/ngx-components';
-    const distTagsObject = await (0, package_dist_tags_1.getDistTagsObject)(packageName);
+    let distTagsObject = await (0, package_dist_tags_1.getDistTagsObject)(packageName);
     console.log('All dist tags:', distTagsObject);
-    const nonDeprecatedDistTagsObject = await (0, filter_out_deprecated_dist_tags_1.filterOutDeprecatedDistTags)(packageName, distTagsObject);
-    console.log('Non deprecated dist tags:', nonDeprecatedDistTagsObject);
-    const shellVersions = (0, prepare_shell_versions_output_1.prepareShellVersionsOutput)(nonDeprecatedDistTagsObject, includeLatest, versionsLength);
-    console.log('Last three versions of shell:', shellVersions);
+    if (!includeDeprecated) {
+        distTagsObject = await (0, filter_out_deprecated_dist_tags_1.filterOutDeprecatedDistTags)(packageName, distTagsObject);
+        console.log('Non deprecated dist tags:', distTagsObject);
+    }
+    const shellVersions = (0, prepare_shell_versions_output_1.prepareShellVersionsOutput)(distTagsObject, includeLatest, versionsLength);
+    console.log('Collected versions of shell:', shellVersions);
     core.setOutput('shell_versions', JSON.stringify(shellVersions));
 };
 performAction().catch(error => {
@@ -25111,7 +25110,8 @@ exports.getDistTagsObject = getDistTagsObject;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.prepareShellVersionsOutput = void 0;
 /**
- * Selects last three yearly releases. If there are less than three yearly releases, it will add the 1018.0-lts version.
+ * Selects versions of shell and creates list for workflow output.
+ * By default, selects last three yearly releases. If there are less than three yearly releases, it will add the 1018.0-lts version.
  * @param {DistTagsObject} distTagsObject - Object containing the distribution tags of a package and it's versions.
  * @param includeLatest - Indicates if 'latest' tag version should be included in list.
  * @param outputMaxLength - Maximum length of shell versions list.
