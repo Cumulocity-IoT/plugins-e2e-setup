@@ -10,6 +10,9 @@ import { prepareShellVersionsOutput } from './prepare-shell-versions-output';
 const performAction = async () => {
 	const includeLatest: boolean = getInput('include-latest') === 'true';
 	const exactTags: string = getInput('exact-tags');
+	const versionsLengthInput = getInput('versions-length');
+	console.log('versionsLengthInput', versionsLengthInput);
+	console.log(' typeof versionsLengthInput', typeof versionsLengthInput);
 	const versionsLength: number = parseInt(getInput('versions-length'), 10);
 	const includeDeprecated: boolean = getInput('include-deprecated') === 'true';
 

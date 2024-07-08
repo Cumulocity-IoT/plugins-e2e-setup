@@ -25027,6 +25027,9 @@ const prepare_shell_versions_output_1 = __nccwpck_require__(3382);
 const performAction = async () => {
     const includeLatest = (0, core_1.getInput)('include-latest') === 'true';
     const exactTags = (0, core_1.getInput)('exact-tags');
+    const versionsLengthInput = (0, core_1.getInput)('versions-length');
+    console.log('versionsLengthInput', versionsLengthInput);
+    console.log(' typeof versionsLengthInput', typeof versionsLengthInput);
     const versionsLength = parseInt((0, core_1.getInput)('versions-length'), 10);
     const includeDeprecated = (0, core_1.getInput)('include-deprecated') === 'true';
     const packageName = '@c8y/ngx-components';
