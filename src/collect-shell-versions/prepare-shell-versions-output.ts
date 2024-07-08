@@ -6,7 +6,8 @@ export type ShellVersionsOutput = {
 	major: string;
 };
 /**
- * Selects last three yearly releases. If there are less than three yearly releases, it will add the 1018.0-lts version.
+ * Selects versions of shell and creates list for workflow output.
+ * By default, selects last three yearly releases. If there are less than three yearly releases, it will add the 1018.0-lts version.
  * @param {DistTagsObject} distTagsObject - Object containing the distribution tags of a package and it's versions.
  * @param includeLatest - Indicates if 'latest' tag version should be included in list.
  * @param outputMaxLength - Maximum length of shell versions list.

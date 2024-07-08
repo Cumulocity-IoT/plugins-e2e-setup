@@ -5,33 +5,32 @@ import { filterOutDeprecatedDistTags } from './filter-out-deprecated-dist-tags';
 import { prepareShellVersionsOutput } from './prepare-shell-versions-output';
 
 /**
- * Action collects the last three versions of the shell for the @c8y/ngx-components package and sets the output for use in workflow.
+ * Action collects versions of the shell for the @c8y/ngx-components package and sets the output for use in workflow.
  */
 const performAction = async () => {
 	const includeLatest: boolean = getInput('include-latest') === 'true';
-	console.log('Inputs: include-latest', getInput('include-latest'));
 	// const exactTags: string = getInput('exact-tags');
 	const versionsLength: number = parseInt(getInput('versions-length'), 10);
-	console.log('Inputs: versions-length', getInput('versions-length'));
-	console.log('typeof versionsLength', typeof versionsLength);
-	// const includeDeprecated: boolean = getInput('include-deprecated') === 'true';
+	const includeDeprecated: boolean = getInput('include-deprecated') === 'true';
 
 	const packageName = '@c8y/ngx-components';
-	const distTagsObject = await getDistTagsObject(packageName);
+	let distTagsObject = await getDistTagsObject(packageName);
 	console.log('All dist tags:', distTagsObject);
 
-	const nonDeprecatedDistTagsObject = await filterOutDeprecatedDistTags(
-		packageName,
-		distTagsObject
-	);
-	console.log('Non deprecated dist tags:', nonDeprecatedDistTagsObject);
+	if (!includeDeprecated) {
+		distTagsObject = await filterOutDeprecatedDistTags(
+			packageName,
+			distTagsObject
+		);
+		console.log('Non deprecated dist tags:', distTagsObject);
+	}
 
 	const shellVersions = prepareShellVersionsOutput(
-		nonDeprecatedDistTagsObject,
+		distTagsObject,
 		includeLatest,
 		versionsLength
 	);
-	console.log('Last three versions of shell:', shellVersions);
+	console.log('Collected versions of shell:', shellVersions);
 	core.setOutput('shell_versions', JSON.stringify(shellVersions));
 };
 
