@@ -9,7 +9,7 @@ import { prepareShellVersionsOutput } from './prepare-shell-versions-output';
  */
 const performAction = async () => {
 	const includeLatest: boolean = getInput('include-latest') === 'true';
-	// const exactTags: string = getInput('exact-tags');
+	const exactTags: string = getInput('exact-tags');
 	const versionsLength: number = parseInt(getInput('versions-length'), 10);
 	const includeDeprecated: boolean = getInput('include-deprecated') === 'true';
 
@@ -28,7 +28,8 @@ const performAction = async () => {
 	const shellVersions = prepareShellVersionsOutput(
 		distTagsObject,
 		includeLatest,
-		versionsLength
+		versionsLength,
+		exactTags
 	);
 	console.log('Collected versions of shell:', shellVersions);
 	core.setOutput('shell_versions', JSON.stringify(shellVersions));

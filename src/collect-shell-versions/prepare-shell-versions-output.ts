@@ -5,20 +5,39 @@ export type ShellVersionsOutput = {
 	version: string;
 	major: string;
 };
+const EXACT_TAGS_SEPARATOR = ',';
+
 /**
  * Selects versions of shell and creates list for workflow output.
  * By default, selects last three yearly releases. If there are less than three yearly releases, it will add the 1018.0-lts version.
  * @param {DistTagsObject} distTagsObject - Object containing the distribution tags of a package and it's versions.
  * @param includeLatest - Indicates if 'latest' tag version should be included in list.
  * @param outputMaxLength - Maximum length of shell versions list.
+ * @param exactTags - Comma separated list of exact dist tags to include in the output
  * @returns {Promise<ShellVersionsOutput[]>} A promise that resolves to an array containing versions data.
  */
 export function prepareShellVersionsOutput(
 	distTagsObject: DistTagsObject,
 	includeLatest: boolean,
-	outputMaxLength: number
+	outputMaxLength: number,
+	exactTags: string
 ): ShellVersionsOutput[] {
 	let versions: ShellVersionsOutput[] = [];
+
+	if (exactTags) {
+		const tags: string[] = exactTags.split(EXACT_TAGS_SEPARATOR);
+		versions = tags
+			.filter(tag => {
+				const version = distTagsObject[tag];
+				if (!version) {
+					console.log(`Tag ${tag} does not exist!`);
+				}
+				return !!version;
+			})
+			.map(tag => getShellVersionOutputElement([tag, distTagsObject[tag]]));
+		return versions;
+	}
+
 	if (includeLatest) {
 		versions.push(
 			getShellVersionOutputElement(['latest', distTagsObject['latest']])

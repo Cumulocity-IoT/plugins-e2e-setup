@@ -71,9 +71,9 @@ jobs:
 You can modify returned list with inputs below:
 
 - `include-latest` - boolean; if set to `true` it will include the latest version of the shell app as first element of output (and yearly releases as next elements). Default is `false`.
-- `exact-tags` - string; comma separated list of exact dist tags to include in the output, e.g. "y2024-lts,1018.0-lts".
 - `versions-length` - number; maximum number of versions to include in the output. Default is `3`. Returned list may be shorter if available dist tags are less than provided number.
 - `include-deprecated` - boolean; if set to `true` it will include deprecated versions in the output. Default is `false`.
+- `exact-tags` - string; comma separated list of exact dist tags to include in the output, e.g. "y2024-lts,1018.0-lts". It will override `include-latest` and `versions-length` inputs. Input `include-deprecated` is still applicable along with `exact-tags`.
 
 [//]: # 'TODO: add inputs'
 [//]: # 'TODO: document get-shell-app action'

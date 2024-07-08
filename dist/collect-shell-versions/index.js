@@ -25026,7 +25026,7 @@ const prepare_shell_versions_output_1 = __nccwpck_require__(3382);
  */
 const performAction = async () => {
     const includeLatest = (0, core_1.getInput)('include-latest') === 'true';
-    // const exactTags: string = getInput('exact-tags');
+    const exactTags = (0, core_1.getInput)('exact-tags');
     const versionsLength = parseInt((0, core_1.getInput)('versions-length'), 10);
     const includeDeprecated = (0, core_1.getInput)('include-deprecated') === 'true';
     const packageName = '@c8y/ngx-components';
@@ -25036,7 +25036,7 @@ const performAction = async () => {
         distTagsObject = await (0, filter_out_deprecated_dist_tags_1.filterOutDeprecatedDistTags)(packageName, distTagsObject);
         console.log('Non deprecated dist tags:', distTagsObject);
     }
-    const shellVersions = (0, prepare_shell_versions_output_1.prepareShellVersionsOutput)(distTagsObject, includeLatest, versionsLength);
+    const shellVersions = (0, prepare_shell_versions_output_1.prepareShellVersionsOutput)(distTagsObject, includeLatest, versionsLength, exactTags);
     console.log('Collected versions of shell:', shellVersions);
     core.setOutput('shell_versions', JSON.stringify(shellVersions));
 };
@@ -25109,16 +25109,31 @@ exports.getDistTagsObject = getDistTagsObject;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.prepareShellVersionsOutput = void 0;
+const EXACT_TAGS_SEPARATOR = ',';
 /**
  * Selects versions of shell and creates list for workflow output.
  * By default, selects last three yearly releases. If there are less than three yearly releases, it will add the 1018.0-lts version.
  * @param {DistTagsObject} distTagsObject - Object containing the distribution tags of a package and it's versions.
  * @param includeLatest - Indicates if 'latest' tag version should be included in list.
  * @param outputMaxLength - Maximum length of shell versions list.
+ * @param exactTags - Comma separated list of exact dist tags to include in the output
  * @returns {Promise<ShellVersionsOutput[]>} A promise that resolves to an array containing versions data.
  */
-function prepareShellVersionsOutput(distTagsObject, includeLatest, outputMaxLength) {
+function prepareShellVersionsOutput(distTagsObject, includeLatest, outputMaxLength, exactTags) {
     let versions = [];
+    if (exactTags) {
+        const tags = exactTags.split(EXACT_TAGS_SEPARATOR);
+        versions = tags
+            .filter(tag => {
+            const version = distTagsObject[tag];
+            if (!version) {
+                console.log(`Tag ${tag} does not exist!`);
+            }
+            return !!version;
+        })
+            .map(tag => getShellVersionOutputElement([tag, distTagsObject[tag]]));
+        return versions;
+    }
     if (includeLatest) {
         versions.push(getShellVersionOutputElement(['latest', distTagsObject['latest']]));
     }

@@ -17,7 +17,7 @@ const distTagObject = {
 
 describe('prepareShellVersionsOutput', () => {
 	test('when default values are applied', () => {
-		const result = prepareShellVersionsOutput(distTagObject, false, 3);
+		const result = prepareShellVersionsOutput(distTagObject, false, 3, '');
 
 		expect(result).toEqual([
 			{ tag: 'y2025-lts', version: '1020.0.19', major: '1020' },
@@ -27,7 +27,7 @@ describe('prepareShellVersionsOutput', () => {
 	});
 
 	test('when include latest is true', () => {
-		const result = prepareShellVersionsOutput(distTagObject, true, 3);
+		const result = prepareShellVersionsOutput(distTagObject, true, 3, '');
 
 		expect(result).toEqual([
 			{ tag: 'latest', version: '1020.0.19', major: '1020' },
@@ -37,7 +37,7 @@ describe('prepareShellVersionsOutput', () => {
 	});
 
 	test('when include latest is true and outputMaxLength is 5', () => {
-		const result = prepareShellVersionsOutput(distTagObject, true, 5);
+		const result = prepareShellVersionsOutput(distTagObject, true, 5, '');
 
 		expect(result).toEqual([
 			{ tag: 'latest', version: '1020.0.19', major: '1020' },
@@ -49,7 +49,7 @@ describe('prepareShellVersionsOutput', () => {
 	});
 
 	test('when include latest is false and outputMaxLength is 5', () => {
-		const result = prepareShellVersionsOutput(distTagObject, false, 5);
+		const result = prepareShellVersionsOutput(distTagObject, false, 5, '');
 
 		expect(result).toEqual([
 			{ tag: 'y2025-lts', version: '1020.0.19', major: '1020' },
@@ -57,6 +57,25 @@ describe('prepareShellVersionsOutput', () => {
 			{ tag: '1018.0-lts', version: '1018.0.267', major: '1018' },
 			{ tag: '1017.0-lts', version: '1017.0.534', major: '1017' },
 			{ tag: '1016.0-lts', version: '1016.0.484', major: '1016' }
+		]);
+	});
+
+	test('when include exact tags is provided and max length and include latest are ignored', () => {
+		const maxLength = 5;
+		const includeLatest = true;
+		const extactTags =
+			'y2024-lts,1018.0-lts,1011.0-lts,some-non-existing-version-1033';
+		const result = prepareShellVersionsOutput(
+			distTagObject,
+			includeLatest,
+			maxLength,
+			extactTags
+		);
+
+		expect(result).toEqual([
+			{ tag: 'y2024-lts', version: '1018.503.100', major: '1018' },
+			{ tag: '1018.0-lts', version: '1018.0.267', major: '1018' },
+			{ tag: '1011.0-lts', version: '1011.0.38', major: '1011' }
 		]);
 	});
 });
