@@ -9,6 +9,10 @@ inputs:
     description: 'Indicates how many versions should be in output'
     required: false
     default: '3'
+  include-deprecated:
+      description: 'Include deprecated dist tags in output'
+      required: false
+      default: 'false'
 outputs:
   shell_versions:
     description: 'List of shell versions'
