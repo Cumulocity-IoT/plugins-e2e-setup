@@ -84,6 +84,7 @@ This action downloads shell app of given version and unzips it to provided desti
 ### Usage
 
 Action can be utilized for e2e testing purposes. In this example we get Cockpit app and use it to test plugins against Cockpit shell.
+Cockpit of version 1020.0.19 will be downloaded and unzipped to to `dist/apps/cockpit`.
 
 ```yaml
 jobs:
@@ -122,4 +123,4 @@ You can modify action's behavior with inputs below:
 
 - `shell-name` - string; name of the shell app to download. Possible shells are `cockpit`, `devicemanagement` and `administration`. Required.
 - `shell-version` - string; exact version of shell app. E.g. `1020.0.19`. Required.
-- `shell-path` - string; path where shell app should be unzipped. Default is `dist/apps`. Optional.
+- `shell-path` - string; path where shell app should be unzipped. Default is `dist/apps`. Ultimately shell app will be extracted to path `<shell-path>/<shell-name>`, e.g. for `shell-path`: `dist/apps` and `shell-name`: `cockpit`, shell will be extracted to `dist/apps/cockpit`. Optional.
