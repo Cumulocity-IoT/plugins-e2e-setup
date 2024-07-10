@@ -28456,11 +28456,13 @@ const axios_1 = __importDefault(__nccwpck_require__(8757));
  * @returns The name of the downloaded file.
  */
 async function downloadShellApp(shellVersion) {
-    const fileUrl = `http://resources.cumulocity.com/webapps/ui-releases/apps-${shellVersion}.tgz`;
+    const fileUrl = `https://resources.cumulocity.com/webapps/ui-releases/apps-${shellVersion}.tgz`;
+    const fallbackFileUrl = `https://staging-resources.cumulocity.com/webapps/ui-releases/apps-${shellVersion}.tgz`;
     console.log(`Shell file url is: ${fileUrl}`);
+    console.log(`Shell file fallback url is: ${fallbackFileUrl}`);
     try {
         const tgzFile = `apps-${shellVersion}.tgz`;
-        await downloadFile(fileUrl, tgzFile);
+        await downloadFile(fileUrl, fallbackFileUrl, tgzFile);
         if (!fs.existsSync(tgzFile)) {
             throw new Error('Downloaded file not found!');
         }
@@ -28475,21 +28477,39 @@ async function downloadShellApp(shellVersion) {
 exports.downloadShellApp = downloadShellApp;
 /**
  * Downloads the file from the given URL and saves it to the given output path.
+ * If the download from the first URL fails, it attempts to download from the fallback URL.
  * @param url The URL of the file to download.
+ * @param fallbackUrl The fallback URL of the file to download.
  * @param outputPath The path to save the downloaded file.
  */
-async function downloadFile(url, outputPath) {
+async function downloadFile(url, fallbackUrl, outputPath) {
     const writer = fs.createWriteStream(outputPath);
-    const response = await (0, axios_1.default)({
-        url,
-        method: 'GET',
-        responseType: 'stream'
-    });
-    response.data.pipe(writer);
-    return new Promise((resolve, reject) => {
-        writer.on('finish', resolve);
-        writer.on('error', reject);
-    });
+    try {
+        const response = await (0, axios_1.default)({
+            url,
+            method: 'GET',
+            responseType: 'stream'
+        });
+        response.data.pipe(writer);
+        await new Promise((resolve, reject) => {
+            writer.on('finish', resolve);
+            writer.on('error', reject);
+        });
+    }
+    catch (_) {
+        console.error(`Failed to download from ${url}. Attempting fallback URL ${fallbackUrl}`);
+        const writerFallback = fs.createWriteStream(outputPath);
+        const responseFallback = await (0, axios_1.default)({
+            url: fallbackUrl,
+            method: 'GET',
+            responseType: 'stream'
+        });
+        responseFallback.data.pipe(writerFallback);
+        await new Promise((resolve, reject) => {
+            writerFallback.on('finish', resolve);
+            writerFallback.on('error', reject);
+        });
+    }
 }
 
 
