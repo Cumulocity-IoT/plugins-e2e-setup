@@ -26,4 +26,4 @@ outputs:
     description: 'List of shell versions'
 runs:
   using: 'node20'
-  main: '../dist/collect-shell-versions/index.js'
+  main: '../dist/actions/collect-shell-versions/index.js'

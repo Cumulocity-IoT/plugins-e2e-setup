@@ -1,19 +1,30 @@
-import { getInput, setFailed } from '@actions/core';
-import * as core from '@actions/core';
 import { getDistTagsObject } from './package-dist-tags';
 import { filterOutDeprecatedDistTags } from './filter-out-deprecated-dist-tags';
-import { prepareShellVersionsOutput } from './prepare-shell-versions-output';
+import {
+	prepareShellVersionsOutput,
+	ShellVersionsOutput
+} from './prepare-shell-versions-output';
+
+type CollectShellVersionsParams = {
+	includeLatest: boolean;
+	exactTags: string;
+	versionsLength: number;
+	includeDeprecated: boolean;
+	packageName: string;
+};
 
 /**
- * Action collects versions of the shell for the @c8y/ngx-components package and sets the output for use in workflow.
+ * Collects versions of the shell for the given package name.
+ * @param {CollectShellVersionsParams} arg The parameters object for collecting shell versions.
+ * @return {Promise<ShellVersionsOutput[]>} A promise that resolves to an array of shell versions.
  */
-const performAction = async () => {
-	const includeLatest: boolean = getInput('include-latest') === 'true';
-	const exactTags: string = getInput('exact-tags');
-	const versionsLength: number = parseInt(getInput('versions-length'), 10);
-	const includeDeprecated: boolean = getInput('include-deprecated') === 'true';
-	const packageName = getInput('package-name');
-
+export async function collectShellVersions({
+	includeLatest,
+	exactTags,
+	versionsLength,
+	includeDeprecated,
+	packageName
+}: CollectShellVersionsParams): Promise<ShellVersionsOutput[]> {
 	let distTagsObject = await getDistTagsObject(packageName);
 	console.log('All dist tags:', distTagsObject);
 
@@ -32,10 +43,5 @@ const performAction = async () => {
 		exactTags
 	);
 	console.log('Collected versions of shell:', shellVersions);
-	core.setOutput('shell_versions', JSON.stringify(shellVersions));
-};
-
-performAction().catch(error => {
-	console.error('An error occurred', error);
-	setFailed(error.message);
-});
+	return shellVersions;
+}

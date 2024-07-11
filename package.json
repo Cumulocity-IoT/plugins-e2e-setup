@@ -2,7 +2,7 @@
   "name": "plugins-e2e-setup",
   "version": "1.0.0",
   "scripts": {
-    "build": "ncc build src/collect-shell-versions/index.ts -o dist/collect-shell-versions & ncc build src/get-shell-app/index.ts -o dist/get-shell-app",
+    "build": "ncc build src/collect-shell-versions/action.ts -o dist/actions/collect-shell-versions -m & ncc build src/collect-shell-versions/index.ts -o dist/scripts/collect-shell-versions & ncc build src/get-shell-app/index.ts -o dist/get-shell-app",
     "lint": "eslint --ext .ts .",
     "lint:staged": "lint-staged",
     "prepare": "husky install",
