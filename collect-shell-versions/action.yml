@@ -17,6 +17,10 @@ inputs:
       description: 'Include deprecated dist tags in output'
       required: false
       default: 'false'
+  package-name:
+    description: 'Name of the package to collect versions for'
+    required: false
+    default: '@c8y/ngx-components'
 outputs:
   shell_versions:
     description: 'List of shell versions'

@@ -12,8 +12,8 @@ const performAction = async () => {
 	const exactTags: string = getInput('exact-tags');
 	const versionsLength: number = parseInt(getInput('versions-length'), 10);
 	const includeDeprecated: boolean = getInput('include-deprecated') === 'true';
+	const packageName = getInput('package-name');
 
-	const packageName = '@c8y/ngx-components';
 	let distTagsObject = await getDistTagsObject(packageName);
 	console.log('All dist tags:', distTagsObject);
 

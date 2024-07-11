@@ -76,6 +76,7 @@ You can modify returned list with inputs below:
 - `versions-length` - number; maximum number of versions to include in the output. Default is `3`. Returned list may be shorter if available dist tags are less than provided number. Optional.
 - `include-deprecated` - boolean; if set to `true` it will include deprecated versions in the output. Default is `false`. Optional.
 - `exact-tags` - string; comma separated list of exact dist tags to include in the output, e.g. "y2024-lts,1018.0-lts". It will override `include-latest` and `versions-length` inputs. Input `include-deprecated` is still applicable along with `exact-tags`. Optional.
+- `package-name`- string; name of the package to get versions for. Default is `@c8y/ngx-components`. Optional.
 
 ## Get shell apps action
 

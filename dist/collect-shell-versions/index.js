@@ -25029,7 +25029,7 @@ const performAction = async () => {
     const exactTags = (0, core_1.getInput)('exact-tags');
     const versionsLength = parseInt((0, core_1.getInput)('versions-length'), 10);
     const includeDeprecated = (0, core_1.getInput)('include-deprecated') === 'true';
-    const packageName = '@c8y/ngx-components';
+    const packageName = (0, core_1.getInput)('package-name');
     let distTagsObject = await (0, package_dist_tags_1.getDistTagsObject)(packageName);
     console.log('All dist tags:', distTagsObject);
     if (!includeDeprecated) {
