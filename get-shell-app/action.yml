@@ -13,4 +13,4 @@ inputs:
     default: 'dist/apps'
 runs:
   using: 'node20'
-  main: '../dist/get-shell-app/index.js'
+  main: '../dist/actions/get-shell-app/index.js'
