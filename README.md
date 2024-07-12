@@ -125,3 +125,31 @@ You can modify action's behavior with inputs below:
 - `shell-name` - string; name of the shell app to download. Possible shells are `cockpit`, `devicemanagement` and `administration`. Required.
 - `shell-version` - string; exact version of shell app. E.g. `1020.0.19`. Required.
 - `shell-path` - string; path where shell app should be unzipped. Default is `dist/apps`. Ultimately shell app will be extracted to path `<shell-path>/<shell-name>`, e.g. for `shell-path`: `dist/apps` and `shell-name`: `cockpit`, shell will be extracted to `dist/apps/cockpit`. Optional.
+
+## Features as scripts
+
+Both `collect-shell-versions` and `get-shell-app` can be used as scripts from folder `dist/scripts/collect-shell-versions/index.js` and `dist/scripts/get-shell-app/index.js` respectively.
+For example, to run `get-shell-app` script you can add wrapper script that require `dist/scripts/get-shell-app/index.js`, get parameters from command line and run the script.
+
+```test.js
+const { getShellApp } = require('<path>/index');
+
+async function testGetShellApp(shellName, shellVersion, shellPath) {
+        await getShellApp({
+            shellName,
+            shellVersion,
+            shellPath
+        });
+}
+const [shellName, shellVersion, shellPath] = process.argv.slice(2);
+
+testGetShellApp(shellName, shellVersion, shellPath);
+```
+
+Run the script from console
+
+```bash
+node <path>/test.js cockpit 1020.2.12 ./test-path
+```
+
+In result, cockpit app will be downloaded and unzipped to `./test-path/cockpit` folder.
