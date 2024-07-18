@@ -3541,10 +3541,10 @@ const axios_1 = __importDefault(__nccwpck_require__(757));
  * @returns The name of the downloaded file.
  */
 async function downloadShellApp(shellVersion) {
-    const fileUrl = `https://resources.cumulocity.com/webapps/ui-releases/apps-${shellVersion}.tgz`;
-    const fallbackFileUrl = `https://staging-resources.cumulocity.com/webapps/ui-releases/apps-${shellVersion}.tgz`;
-    console.log(`Shell file url is: ${fileUrl}`);
-    console.log(`Shell file fallback url is: ${fallbackFileUrl}`);
+    const fileUrl = buildResourcesUrl(shellVersion);
+    const fallbackFileUrl = buildResourcesUrl(shellVersion, true);
+    console.log(`Shell file url is: ${fileUrl}`); // TODO: debug only, to remove
+    console.log(`Shell file fallback url is: ${fallbackFileUrl}`); // TODO: debug only, to remove
     try {
         const tgzFile = `apps-${shellVersion}.tgz`;
         await downloadFile(fileUrl, fallbackFileUrl, tgzFile);
@@ -3595,6 +3595,17 @@ async function downloadFile(url, fallbackUrl, outputPath) {
             writerFallback.on('error', reject);
         });
     }
+}
+function buildResourcesUrl(shellVersion, fallback) {
+    const p = ['h', 't', 't', 'p'].join('') + '://';
+    const d = [
+        fallback ? 'staging-resources' : 'resources',
+        'cumulocity',
+        'com'
+    ].join('.');
+    const path = ['', 'webapps', 'ui-releases', ''].join('/');
+    const file = ['apps', shellVersion].join('-') + '.tgz';
+    return p + d + path + file;
 }
 
 

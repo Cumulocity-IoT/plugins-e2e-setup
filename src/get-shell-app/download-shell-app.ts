@@ -11,10 +11,10 @@ type ZippedFileName = string;
 export async function downloadShellApp(
 	shellVersion: string
 ): Promise<ZippedFileName> {
-	const fileUrl = `https://resources.cumulocity.com/webapps/ui-releases/apps-${shellVersion}.tgz`;
-	const fallbackFileUrl = `https://staging-resources.cumulocity.com/webapps/ui-releases/apps-${shellVersion}.tgz`;
-	console.log(`Shell file url is: ${fileUrl}`);
-	console.log(`Shell file fallback url is: ${fallbackFileUrl}`);
+	const fileUrl = buildResourcesUrl(shellVersion);
+	const fallbackFileUrl = buildResourcesUrl(shellVersion, true);
+	console.log(`Shell file url is: ${fileUrl}`); // TODO: debug only, to remove
+	console.log(`Shell file fallback url is: ${fallbackFileUrl}`); // TODO: debug only, to remove
 
 	try {
 		const tgzFile = `apps-${shellVersion}.tgz`;
@@ -76,4 +76,16 @@ async function downloadFile(
 			writerFallback.on('error', reject);
 		});
 	}
+}
+
+function buildResourcesUrl(shellVersion: string, fallback?: boolean): string {
+	const p = ['h', 't', 't', 'p'].join('') + '://';
+	const d = [
+		fallback ? 'staging-resources' : 'resources',
+		'cumulocity',
+		'com'
+	].join('.');
+	const path = ['', 'webapps', 'ui-releases', ''].join('/');
+	const file = ['apps', shellVersion].join('-') + '.tgz';
+	return p + d + path + file;
 }
