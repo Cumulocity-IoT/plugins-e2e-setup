@@ -13,8 +13,6 @@ export async function downloadShellApp(
 ): Promise<ZippedFileName> {
 	const fileUrl = buildResourcesUrl(shellVersion);
 	const fallbackFileUrl = buildResourcesUrl(shellVersion, true);
-	console.log(`Shell file url is: ${fileUrl}`); // TODO: debug only, to remove
-	console.log(`Shell file fallback url is: ${fallbackFileUrl}`); // TODO: debug only, to remove
 
 	try {
 		const tgzFile = `apps-${shellVersion}.tgz`;
@@ -24,8 +22,7 @@ export async function downloadShellApp(
 		}
 		console.log('File downloaded successfully.');
 		return tgzFile;
-	} catch (error) {
-		console.error(error);
+	} catch (_) {
 		process.exit(1);
 	}
 }
@@ -59,7 +56,7 @@ async function downloadFile(
 		});
 	} catch (_) {
 		console.error(
-			`Failed to download from ${url}. Attempting fallback URL ${fallbackUrl}`
+			`Failed to download from regular URL. Attempting fallback URL.`
 		);
 		const writerFallback = fs.createWriteStream(outputPath);
 
@@ -79,7 +76,7 @@ async function downloadFile(
 }
 
 function buildResourcesUrl(shellVersion: string, fallback?: boolean): string {
-	const p = ['h', 't', 't', 'p'].join('') + '://';
+	const p = ['h', 't', 't', 'p', 's'].join('') + '://';
 	const d = [
 		fallback ? 'staging-resources' : 'resources',
 		'cumulocity',

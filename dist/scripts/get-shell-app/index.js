@@ -3543,8 +3543,6 @@ const axios_1 = __importDefault(__nccwpck_require__(757));
 async function downloadShellApp(shellVersion) {
     const fileUrl = buildResourcesUrl(shellVersion);
     const fallbackFileUrl = buildResourcesUrl(shellVersion, true);
-    console.log(`Shell file url is: ${fileUrl}`); // TODO: debug only, to remove
-    console.log(`Shell file fallback url is: ${fallbackFileUrl}`); // TODO: debug only, to remove
     try {
         const tgzFile = `apps-${shellVersion}.tgz`;
         await downloadFile(fileUrl, fallbackFileUrl, tgzFile);
@@ -3554,8 +3552,7 @@ async function downloadShellApp(shellVersion) {
         console.log('File downloaded successfully.');
         return tgzFile;
     }
-    catch (error) {
-        console.error(error);
+    catch (_) {
         process.exit(1);
     }
 }
@@ -3582,7 +3579,7 @@ async function downloadFile(url, fallbackUrl, outputPath) {
         });
     }
     catch (_) {
-        console.error(`Failed to download from ${url}. Attempting fallback URL ${fallbackUrl}`);
+        console.error(`Failed to download from regular URL. Attempting fallback URL.`);
         const writerFallback = fs.createWriteStream(outputPath);
         const responseFallback = await (0, axios_1.default)({
             url: fallbackUrl,
@@ -3597,7 +3594,7 @@ async function downloadFile(url, fallbackUrl, outputPath) {
     }
 }
 function buildResourcesUrl(shellVersion, fallback) {
-    const p = ['h', 't', 't', 'p'].join('') + '://';
+    const p = ['h', 't', 't', 'p', 's'].join('') + '://';
     const d = [
         fallback ? 'staging-resources' : 'resources',
         'cumulocity',
