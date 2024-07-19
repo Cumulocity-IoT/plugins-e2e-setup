@@ -177,8 +177,7 @@ exports.prepareShellVersionsOutput = prepareShellVersionsOutput;
 function getShellVersionOutputElement([tag, version]) {
     return {
         tag,
-        version,
-        major: version.split('.')[0]
+        version
     };
 }
 

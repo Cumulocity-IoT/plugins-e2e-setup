@@ -20,9 +20,9 @@ describe('prepareShellVersionsOutput', () => {
 		const result = prepareShellVersionsOutput(distTagObject, false, 3, '');
 
 		expect(result).toEqual([
-			{ tag: 'y2025-lts', version: '1020.0.19', major: '1020' },
-			{ tag: 'y2024-lts', version: '1018.503.100', major: '1018' },
-			{ tag: '1018.0-lts', version: '1018.0.267', major: '1018' }
+			{ tag: 'y2025-lts', version: '1020.0.19' },
+			{ tag: 'y2024-lts', version: '1018.503.100' },
+			{ tag: '1018.0-lts', version: '1018.0.267' }
 		]);
 	});
 
@@ -30,9 +30,9 @@ describe('prepareShellVersionsOutput', () => {
 		const result = prepareShellVersionsOutput(distTagObject, true, 3, '');
 
 		expect(result).toEqual([
-			{ tag: 'latest', version: '1020.0.19', major: '1020' },
-			{ tag: 'y2025-lts', version: '1020.0.19', major: '1020' },
-			{ tag: 'y2024-lts', version: '1018.503.100', major: '1018' }
+			{ tag: 'latest', version: '1020.0.19' },
+			{ tag: 'y2025-lts', version: '1020.0.19' },
+			{ tag: 'y2024-lts', version: '1018.503.100' }
 		]);
 	});
 
@@ -40,11 +40,11 @@ describe('prepareShellVersionsOutput', () => {
 		const result = prepareShellVersionsOutput(distTagObject, true, 5, '');
 
 		expect(result).toEqual([
-			{ tag: 'latest', version: '1020.0.19', major: '1020' },
-			{ tag: 'y2025-lts', version: '1020.0.19', major: '1020' },
-			{ tag: 'y2024-lts', version: '1018.503.100', major: '1018' },
-			{ tag: '1018.0-lts', version: '1018.0.267', major: '1018' },
-			{ tag: '1017.0-lts', version: '1017.0.534', major: '1017' }
+			{ tag: 'latest', version: '1020.0.19' },
+			{ tag: 'y2025-lts', version: '1020.0.19' },
+			{ tag: 'y2024-lts', version: '1018.503.100' },
+			{ tag: '1018.0-lts', version: '1018.0.267' },
+			{ tag: '1017.0-lts', version: '1017.0.534' }
 		]);
 	});
 
@@ -52,11 +52,11 @@ describe('prepareShellVersionsOutput', () => {
 		const result = prepareShellVersionsOutput(distTagObject, false, 5, '');
 
 		expect(result).toEqual([
-			{ tag: 'y2025-lts', version: '1020.0.19', major: '1020' },
-			{ tag: 'y2024-lts', version: '1018.503.100', major: '1018' },
-			{ tag: '1018.0-lts', version: '1018.0.267', major: '1018' },
-			{ tag: '1017.0-lts', version: '1017.0.534', major: '1017' },
-			{ tag: '1016.0-lts', version: '1016.0.484', major: '1016' }
+			{ tag: 'y2025-lts', version: '1020.0.19' },
+			{ tag: 'y2024-lts', version: '1018.503.100' },
+			{ tag: '1018.0-lts', version: '1018.0.267' },
+			{ tag: '1017.0-lts', version: '1017.0.534' },
+			{ tag: '1016.0-lts', version: '1016.0.484' }
 		]);
 	});
 
@@ -73,9 +73,9 @@ describe('prepareShellVersionsOutput', () => {
 		);
 
 		expect(result).toEqual([
-			{ tag: 'y2024-lts', version: '1018.503.100', major: '1018' },
-			{ tag: '1018.0-lts', version: '1018.0.267', major: '1018' },
-			{ tag: '1011.0-lts', version: '1011.0.38', major: '1011' }
+			{ tag: 'y2024-lts', version: '1018.503.100' },
+			{ tag: '1018.0-lts', version: '1018.0.267' },
+			{ tag: '1011.0-lts', version: '1011.0.38' }
 		]);
 	});
 });

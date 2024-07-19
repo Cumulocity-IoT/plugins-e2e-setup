@@ -18,7 +18,6 @@ Result of this action is a JSON array of objects implementing the following stru
 {
 	tag: string;
 	version: string;
-	major: string;
 }
 ```
 
@@ -26,9 +25,9 @@ Example output of this action:
 
 ```json
 [
-	{ "tag": "y2025-lts", "version": "1020.0.19", "major": "1020" },
-	{ "tag": "y2024-lts", "version": "1018.503.100", "major": "1018" },
-	{ "tag": "1018.0-lts", "version": "1018.0.267", "major": "1018" }
+	{ "tag": "y2025-lts", "version": "1020.0.19" },
+	{ "tag": "y2024-lts", "version": "1018.503.100" },
+	{ "tag": "1018.0-lts", "version": "1018.0.267" }
 ]
 ```
 
@@ -36,7 +35,7 @@ Example output of this action:
 
 Action can be utilized in various purposes.
 In this example we run collect-shell-versions action and then use it's output in next step to create a matrix strategy which will result in parallel jobs.
-Each job will get an object with dist tag, exact version and major version of the shell app. Major version is useful for environment variables that are shared between steps, e.g. for e2e tests versioning.
+Each job will get an object with dist tag and exact version of the shell app.
 
 ```yaml
 jobs:
@@ -52,7 +51,7 @@ jobs:
         uses: SoftwareAG/plugins-e2e-setup/collect-shell-versions@main # reference to collect-shell-versions action
 
       - name: Verify shell versions output
-        run: echo "Collected shell versions ${{ steps.collect-shell-versions.outputs.shell_versions }}" # e.g. `echo "Collected shell versions [{"tag":"y2025-lts","version":"1020.0.19","major":"1020"},{"tag":"y2024-lts","version":"1018.503.100","major":"1018"},{"tag":"1018.0-lts","version":"1018.0.267","major":"1018"}]"`
+        run: echo "Collected shell versions ${{ steps.collect-shell-versions.outputs.shell_versions }}" # e.g. `echo "Collected shell versions [{"tag":"y2025-lts","version":"1020.0.19"},{"tag":"y2024-lts","version":"1018.503.100"},{"tag":"1018.0-lts","version":"1018.0.267"}]"`
 
   run-tests-against-shell:
     needs: [collect-shell-versions]
@@ -61,9 +60,8 @@ jobs:
       matrix:
         version_data: ${{ fromJson(needs.collect-shell-versions.outputs.shell_versions) }} # create matrix strategy based on collect-shell-versions output
     env: # declare environment variables based on matrix strategy
-      JSON: ${{ toJson(matrix.version_data) }} # e.g. `{"tag":"y2025-lts","version":"1020.0.19","major":"1020"}`
+      JSON: ${{ toJson(matrix.version_data) }} # e.g. `{"tag":"y2025-lts","version":"1020.0.19"}`
       VERSION: ${{ matrix.version_data.version }} # e.g. `1020.0.19`
-      MAJOR: ${{ matrix.version_data.major }} # e.g. `1020`
 
     steps:
 ```

@@ -3,7 +3,6 @@ import { DistTagsObject } from './package-dist-tags';
 export type ShellVersionsOutput = {
 	tag: string;
 	version: string;
-	major: string;
 };
 const EXACT_TAGS_SEPARATOR = ',';
 
@@ -69,7 +68,6 @@ function getShellVersionOutputElement([tag, version]: [
 ]): ShellVersionsOutput {
 	return {
 		tag,
-		version,
-		major: version.split('.')[0]
+		version
 	};
 }
