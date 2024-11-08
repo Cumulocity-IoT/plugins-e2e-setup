@@ -88597,6 +88597,21 @@ const performAction = async () => {
     const password = (0, core_1.getInput)('cy-password');
     const managementUser = (0, core_1.getInput)('cy-management-user');
     const managementPassword = (0, core_1.getInput)('cy-management-password');
+    if (!c8yEnv) {
+        (0, core_1.setFailed)('c8yEnv property is required.');
+    }
+    if (!user) {
+        (0, core_1.setFailed)('user property is required.');
+    }
+    if (!password) {
+        (0, core_1.setFailed)('password property is required.');
+    }
+    if (!managementUser) {
+        (0, core_1.setFailed)('managementUser property is required.');
+    }
+    if (!managementPassword) {
+        (0, core_1.setFailed)('managementPassword property is required.');
+    }
     const domainPrefix = `uic8y-cy-${github_1.context.runId}-${github_1.context.runNumber}`;
     console.log('Domain prefix:', domainPrefix);
     const contactName = github_1.context.actor;
