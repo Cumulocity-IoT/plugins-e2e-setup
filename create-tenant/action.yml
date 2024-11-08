@@ -22,6 +22,10 @@ inputs:
     description: "Management Tenant password"
     required: true
     type: string
+  apps-to-subscribe:
+    description: 'List of comma separated apps to subscribe to tenant'
+    required: false
+    default: ''
 outputs:
   domain-prefix:
     description: "Domain prefix to access tenant e.g. https://<domain-prefix>.<c8y-environment>"

@@ -17,12 +17,27 @@ interface CreateTenantParams {
 	companyName: string;
 	contactName: string;
 	numberOfTenants: number;
+	appsToSubscribe: string;
 }
 
-const applicationsToBeSubscribed = [
-	'user-notification',
-	'user-notification-w',
-	'user-notification-ui-plugin'
+let applicationsToBeSubscribed = [
+	'actility',
+	'apama-ctrl-smartrulesmt',
+	'cloud-remote-access',
+	'connectivity-agent-server',
+	'feature-branding',
+	'feature-broker',
+	'databroker-agent-server',
+	'feature-fieldbus4',
+	'feature-opcua-legacy',
+	'feature-user-hierarchy',
+	'loriot-agent',
+	'lwm2m-agent',
+	'opcua-mgmt-service',
+	'sigfox-agent',
+	'smartrule',
+	'snmp-mib-parser',
+	'sslmanagement'
 ];
 
 function uuidv4(): string {
@@ -43,6 +58,9 @@ async function executePromisesInOrder(
 export async function createTenant(
 	params: CreateTenantParams
 ): Promise<string> {
+	if (params.appsToSubscribe) {
+		applicationsToBeSubscribed = params.appsToSubscribe.split(',');
+	}
 	const domain = params.managementUrl.match(/\.([a-z0-9.-]*)/)![1];
 
 	const c8yapi = new C8yApi(params.managementUrl, {

@@ -11,6 +11,7 @@ const performAction = async () => {
 	const password = getInput('cy-password');
 	const managementUser = getInput('cy-management-user');
 	const managementPassword = getInput('cy-management-password');
+	const appsToSubscribe = getInput('apps-to-subscribe');
 
 	if (!c8yEnv) {
 		setFailed('c8yEnv property is required.');
@@ -44,7 +45,8 @@ const performAction = async () => {
 		noTenantSuffix: true,
 		companyName,
 		contactName,
-		numberOfTenants: 1
+		numberOfTenants: 1,
+		appsToSubscribe
 	});
 	console.log('Tenant ID:', tenantId);
 

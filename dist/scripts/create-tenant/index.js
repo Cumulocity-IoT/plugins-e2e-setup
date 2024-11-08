@@ -57125,10 +57125,24 @@ const crypto_1 = __importDefault(__nccwpck_require__(6113));
 const api_1 = __nccwpck_require__(3624);
 // Disable SSL verification
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
-const applicationsToBeSubscribed = [
-    'user-notification',
-    'user-notification-w',
-    'user-notification-ui-plugin'
+let applicationsToBeSubscribed = [
+    'actility',
+    'apama-ctrl-smartrulesmt',
+    'cloud-remote-access',
+    'connectivity-agent-server',
+    'feature-branding',
+    'feature-broker',
+    'databroker-agent-server',
+    'feature-fieldbus4',
+    'feature-opcua-legacy',
+    'feature-user-hierarchy',
+    'loriot-agent',
+    'lwm2m-agent',
+    'opcua-mgmt-service',
+    'sigfox-agent',
+    'smartrule',
+    'snmp-mib-parser',
+    'sslmanagement'
 ];
 function uuidv4() {
     return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, (c) => (+c ^
@@ -57138,6 +57152,9 @@ async function executePromisesInOrder(fns) {
     return fns.reduce((promise, fn) => promise.then(fn), Promise.resolve());
 }
 async function createTenant(params) {
+    if (params.appsToSubscribe) {
+        applicationsToBeSubscribed = params.appsToSubscribe.split(',');
+    }
     const domain = params.managementUrl.match(/\.([a-z0-9.-]*)/)[1];
     const c8yapi = new api_1.C8yApi(params.managementUrl, {
         user: params.managementUser,
