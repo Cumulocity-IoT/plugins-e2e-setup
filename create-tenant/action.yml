@@ -1,0 +1,31 @@
+name: Create tenant
+inputs:
+  c8y-environment:
+    description: "Cumulocity instance"
+    required: true
+    type: string
+  cy-user:
+    description: "User"
+    required: false
+    default: "admin"
+    type: string
+  cy-password:
+    description: "Password"
+    required: true
+    type: string
+  cy-management-user:
+    description: "Management Tenant user"
+    required: true
+    type: string
+  cy-management-password:
+    description: "Management Tenant password"
+    required: true
+    type: string
+outputs:
+  domain-prefix:
+    description: "Domain prefix to access tenant e.g. https://<domain-prefix>.<c8y-environment>"
+  tenant-id:
+    description: "Tenant id"
+runs:
+  using: 'node20'
+  main: '../dist/actions/create-tenant/index.js'
