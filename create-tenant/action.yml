@@ -1,4 +1,5 @@
 name: Create tenant
+description: 'Create tenant'
 inputs:
   c8y-environment:
     description: "Cumulocity instance"
