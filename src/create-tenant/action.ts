@@ -12,6 +12,22 @@ const performAction = async () => {
 	const managementUser = getInput('cy-management-user');
 	const managementPassword = getInput('cy-management-password');
 
+	if (!c8yEnv) {
+		setFailed('c8yEnv property is required.');
+	}
+	if (!user) {
+		setFailed('user property is required.');
+	}
+	if (!password) {
+		setFailed('password property is required.');
+	}
+	if (!managementUser) {
+		setFailed('managementUser property is required.');
+	}
+	if (!managementPassword) {
+		setFailed('managementPassword property is required.');
+	}
+
 	const domainPrefix = `uic8y-cy-${context.runId}-${context.runNumber}`;
 	console.log('Domain prefix:', domainPrefix);
 	const contactName = context.actor;
