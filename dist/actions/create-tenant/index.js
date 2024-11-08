@@ -88597,6 +88597,7 @@ const performAction = async () => {
     const password = (0, core_1.getInput)('cy-password');
     const managementUser = (0, core_1.getInput)('cy-management-user');
     const managementPassword = (0, core_1.getInput)('cy-management-password');
+    console.log('managementUser', managementUser); // TODO:rremoe
     if (!c8yEnv) {
         (0, core_1.setFailed)('c8yEnv property is required.');
     }

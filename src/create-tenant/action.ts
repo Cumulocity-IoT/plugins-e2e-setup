@@ -11,7 +11,7 @@ const performAction = async () => {
 	const password = getInput('cy-password');
 	const managementUser = getInput('cy-management-user');
 	const managementPassword = getInput('cy-management-password');
-
+	console.log('managementUser', managementUser); // TODO:remove
 	if (!c8yEnv) {
 		setFailed('c8yEnv property is required.');
 	}
