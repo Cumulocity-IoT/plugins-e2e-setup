@@ -2,9 +2,10 @@
   "name": "plugins-e2e-setup",
   "version": "1.0.0",
   "scripts": {
-    "build": "npm run build-collect-shell-versions & npm run build-get-shell-app",
+    "build": "npm run build-collect-shell-versions & npm run build-get-shell-app & npm run build-create-tenant",
     "build-collect-shell-versions": "ncc build src/collect-shell-versions/action.ts -o dist/actions/collect-shell-versions -m & ncc build src/collect-shell-versions/index.ts -o dist/scripts/collect-shell-versions",
     "build-get-shell-app": "ncc build src/get-shell-app/action.ts -o dist/actions/get-shell-app -m & ncc build src/get-shell-app/index.ts -o dist/scripts/get-shell-app",
+    "build-create-tenant": "ncc build src/create-tenant/action.ts -o dist/actions/create-tenant -m & ncc build src/create-tenant/index.ts -o dist/scripts/create-tenant",
     "lint": "eslint --ext .ts .",
     "lint:staged": "lint-staged",
     "prepare": "husky install",
@@ -17,11 +18,13 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
-    "@types/lodash": "^4.17.6",
+    "@types/lodash": "^4.17.13",
     "@types/node": "^20.14.9",
+    "@types/request-promise": "^4.1.51",
     "@typescript-eslint/eslint-plugin": "^5.33.1",
     "@typescript-eslint/parser": "^5.33.1",
     "@vercel/ncc": "^0.34.0",
+    "axios": "^1.7.2",
     "eslint": "^8.22.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
@@ -30,11 +33,12 @@
     "husky": "^8.0.1",
     "jest": "^28.1.3",
     "lint-staged": ">=13.0.3",
+    "lodash": "^4.17.21",
     "prettier": "^2.7.1",
+    "request-promise": "^4.2.6",
     "ts-jest": "^28.0.8",
     "ts-node": "^10.9.1",
-    "typescript": "^4.7.4",
-    "axios": "^1.7.2"
+    "typescript": "^4.7.4"
   },
   "lint-staged": {
     "*.ts": "eslint --cache --fix"
