@@ -48,7 +48,7 @@ jobs:
     steps:
       - name: Collect Shell Versions
         id: collect-shell-versions
-        uses: SoftwareAG/plugins-e2e-setup/collect-shell-versions@main # reference to collect-shell-versions action
+        uses: Cumulocity-IoT/plugins-e2e-setup/collect-shell-versions@main # reference to collect-shell-versions action
 
       - name: Verify shell versions output
         run: echo "Collected shell versions ${{ steps.collect-shell-versions.outputs.shell_versions }}" # e.g. `echo "Collected shell versions [{"tag":"y2025-lts","version":"1020.0.19"},{"tag":"y2024-lts","version":"1018.503.100"},{"tag":"1018.0-lts","version":"1018.0.267"}]"`
@@ -100,7 +100,7 @@ jobs:
         path: dist/apps/sag-pkg-community-plugins/
 
     - name: Get shell app of particular version
-      uses: SoftwareAG/plugins-e2e-setup/get-shell-app@main # reference to get-shell-app action
+      uses: Cumulocity-IoT/plugins-e2e-setup/get-shell-app@main # reference to get-shell-app action
       with:
         shell-name: cockpit
         shell-version: 1020.0.19
@@ -124,9 +124,63 @@ You can modify action's behavior with inputs below:
 - `shell-version` - string; exact version of shell app. E.g. `1020.0.19`. Required.
 - `shell-path` - string; path where shell app should be unzipped. Default is `dist/apps`. Ultimately shell app will be extracted to path `<shell-path>/<shell-name>`, e.g. for `shell-path`: `dist/apps` and `shell-name`: `cockpit`, shell will be extracted to `dist/apps/cockpit`. Optional.
 
+## Create tenant action
+
+This action creates a tenant with given name and user with given credentials.
+
+### Usage
+
+Action can be utilized for e2e testing purposes. Management tenant credentials are necessary for this job.
+
+```yaml
+jobs:
+  create-tenant:
+    needs: [setup-env]
+    timeout-minutes: 30
+    runs-on: c8y-ui-cicd-docker
+    environment:
+      name: "latest-stage"
+    outputs:
+      domain-prefix: ${{ steps.create-tenant.outputs.domain-prefix }}
+      tenant-id: ${{ steps.create-tenant.outputs.tenant-id }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Create tenant
+        id: create-tenant
+        uses: Cumulocity-IoT/plugins-e2e-setup/create-tenant@main
+        with:
+          c8y-environment: "latest.stage"
+          cy-user: "admin"
+          cy-password: "Test123"
+          cy-management-user: "tenantadmin"
+          cy-management-password: "Test1234"
+          apps-to-subscribe: user-notification,user-notification-w,user-notification-ui-plugin
+```
+
+### Inputs
+
+You can modify action's behavior with inputs below:
+
+- `c8y-environment`: string; name of the environment to create tenant in. Required. E.g. "latest.stage".
+- `cy-user`: string; user name of the tenant. Optional, default value: "admin".
+- `cy-password`: string; password of the tenant. Required.
+- `cy-management-user`: string; user name of the tenant management user. Required.
+- `cy-management-password`: string; password of the tenant management user. Required.
+- `apps-to-subscribe`: string; comma separated list of apps to subscribe. Optional. 
+
 ## Features as scripts
 
-Both `collect-shell-versions` and `get-shell-app` can be used as scripts from folder `dist/scripts/collect-shell-versions/index.js` and `dist/scripts/get-shell-app/index.js` respectively.
+`collect-shell-versions`, `get-shell-app` and `create-tenant` can be used as scripts from folder `dist/scripts/collect-shell-versions/index.js` and `dist/scripts/get-shell-app/index.js` respectively.
 For example, to run `get-shell-app` script you can add wrapper script that require `dist/scripts/get-shell-app/index.js`, get parameters from command line and run the script.
 
 ```test.js
