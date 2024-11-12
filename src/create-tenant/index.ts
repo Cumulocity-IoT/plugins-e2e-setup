@@ -1,26 +1,74 @@
-// index.js
-'use strict';
-const _ = require('lodash');
-const crypto = require('crypto');
+// index.ts
+import _ from 'lodash';
+import crypto from 'crypto';
+import { ApiClient, createApiClient } from './api';
 
-function sleep(n) {
+function sleep(n: number): Promise<void> {
 	return new Promise(resolve => setTimeout(resolve, n * 1000));
 }
 
-process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 
-const applicationsToBeSubscribed = [
-	'user-notification',
-	'user-notification-w',
-	'user-notification-ui-plugin'
+let applicationsToBeSubscribed: string[] = [
+	'actility',
+	'apama-ctrl-smartrulesmt',
+	'cloud-remote-access',
+	'connectivity-agent-server',
+	'feature-branding',
+	'feature-broker',
+	'databroker-agent-server',
+	'feature-fieldbus4',
+	'feature-opcua-legacy',
+	'feature-user-hierarchy',
+	'loriot-agent',
+	'lwm2m-agent',
+	'opcua-mgmt-service',
+	'sigfox-agent',
+	'smartrule',
+	'snmp-mib-parser',
+	'sslmanagement'
 ];
 
-async function executePromisesInOrder(fns) {
-	const results = [];
-	for (const fn of fns) {
-		results.push(await fn());
-	}
-	return results;
+interface CreateTenantParams {
+	tenantName: string;
+	managementUrl: string;
+	user: string;
+	password: string;
+	managementUser: string;
+	managementPassword: string;
+	isManagement?: boolean;
+	noTenantSuffix?: boolean;
+	companyName?: string;
+	contactName?: string;
+	numberOfTenants?: number;
+	appsToSubscribe?: string;
+}
+
+interface TenantResponse {
+	id: string;
+}
+
+interface Application {
+	owner: {
+		tenant: {
+			id: string;
+		};
+	};
+	name: string;
+	id: string;
+}
+
+interface RoleResponse {
+	roles: Array<{
+		id: string;
+	}>;
+}
+
+interface GroupResponse {
+	groups: Array<{
+		name: string;
+		id: string;
+	}>;
 }
 
 async function createTenant({
@@ -30,24 +78,32 @@ async function createTenant({
 	password,
 	managementUser,
 	managementPassword,
+	appsToSubscribe,
 	isManagement = true,
 	noTenantSuffix = false,
 	companyName = 'e2eTesting tenant',
 	contactName = 'Mr. Smith',
 	numberOfTenants = 1
-}) {
+}: CreateTenantParams): Promise<string> {
+	if (appsToSubscribe) {
+		applicationsToBeSubscribed = appsToSubscribe.split(',');
+	}
 	if (!managementUrl || !managementUser || !managementPassword || !tenantName) {
 		throw new Error('Required parameters are missing');
 	}
 
-	const domain = managementUrl.match(/\.([a-z0-9.-]*)/)[1];
+	const domainMatch = managementUrl.match(/\.([a-z0-9.-]*)/);
+	if (!domainMatch) {
+		throw new Error('Invalid management URL');
+	}
+	const domain = domainMatch[1];
 
-	const c8yapi = require('./api.js')(managementUrl, {
+	const c8yapi: ApiClient = createApiClient(managementUrl, {
 		user: managementUser,
 		pass: managementPassword
 	});
 
-	const uuidv4 = () => {
+	const uuidv4 = (): string => {
 		return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, c =>
 			(
 				+c ^
@@ -56,9 +112,9 @@ async function createTenant({
 		);
 	};
 
-	const createTenants = async tenantNumber => {
+	const createTenants = async (tenantNumber: number): Promise<string[]> => {
 		const url = '/tenant/tenants';
-		const tenantIds = [];
+		const tenantIds: string[] = [];
 
 		for (let index = 0; index < tenantNumber; index++) {
 			try {
@@ -74,7 +130,7 @@ async function createTenant({
 					adminEmail: `${uuidv4()}@sharklasers.com`
 				};
 
-				const response = await c8yapi.req(url, {
+				const response = await c8yapi.req<TenantResponse>(url, {
 					method: 'POST',
 					body,
 					timeout: 300000,
@@ -93,14 +149,14 @@ async function createTenant({
 			}
 		}
 
-		if (isManagement && isManagement !== 'false') {
+		if (isManagement) {
 			await updateTenants(tenantIds);
 		}
 
 		return tenantIds;
 	};
 
-	const updateTenants = async tenantIds => {
+	const updateTenants = async (tenantIds: string[]): Promise<void> => {
 		for (const tenantId of tenantIds) {
 			try {
 				const url = `/tenant/tenants/${tenantId}`;
@@ -121,16 +177,16 @@ async function createTenant({
 		}
 	};
 
-	const getApplicationCollection = async () => {
+	const getApplicationCollection = async (): Promise<Application[]> => {
 		const url =
 			'/application/applicationsByOwner/management?pageSize=1000&withTotalPages=true';
-		const resp = await c8yapi.req(url);
+		const resp = await c8yapi.req<{ applications: Application[] }>(url);
 		return resp.applications.map(elem => _.pick(elem, ['owner', 'name', 'id']));
 	};
 
-	const getListOfPermissions = async tenantId => {
+	const getListOfPermissions = async (tenantId: string): Promise<string[]> => {
 		const url = '/user/roles?pageSize=100&withTotalPages=true';
-		const res = await c8yapi.req(url, {
+		const res = await c8yapi.req<RoleResponse>(url, {
 			headers: {
 				Authorization: `Basic ${Buffer.from(
 					`${tenantId}/${user}:${password}`
@@ -140,9 +196,9 @@ async function createTenant({
 		return res.roles.map(elem => elem.id);
 	};
 
-	const getAdminRoleId = async tenantId => {
+	const getAdminRoleId = async (tenantId: string): Promise<string> => {
 		const url = `/user/${tenantId}/groups?pageSize=100&withTotalPages=true`;
-		const resp = await c8yapi.req(url, {
+		const resp = await c8yapi.req<GroupResponse>(url, {
 			headers: {
 				Authorization: `Basic ${Buffer.from(
 					`${tenantId}/${user}:${password}`
@@ -154,7 +210,7 @@ async function createTenant({
 		return adminGroup.id;
 	};
 
-	const addPermissionsToRole = async tenantId => {
+	const addPermissionsToRole = async (tenantId: string): Promise<void> => {
 		try {
 			const roleId = await getAdminRoleId(tenantId);
 			const permissionsList = await getListOfPermissions(tenantId);
@@ -179,7 +235,7 @@ async function createTenant({
 							}
 						}
 					});
-				} catch (error) {
+				} catch (error: any) {
 					if (error.status === 409) {
 						console.log(
 							`Permission ${permission} already exists for tenant ${tenantId}, skipping...`
@@ -195,7 +251,7 @@ async function createTenant({
 		}
 	};
 
-	const findSubscriptionsIds = async () => {
+	const findSubscriptionsIds = async (): Promise<string[]> => {
 		const apps = await getApplicationCollection();
 		return apps
 			.filter(
@@ -206,7 +262,10 @@ async function createTenant({
 			.map(app => app.id);
 	};
 
-	const subscribeMicroservice = async (idsToSubscribe, tenantId) => {
+	const subscribeMicroservice = async (
+		idsToSubscribe: string[],
+		tenantId: string
+	): Promise<void> => {
 		for (const id of idsToSubscribe) {
 			try {
 				const url = `/tenant/tenants/${tenantId}/applications`;
@@ -224,7 +283,7 @@ async function createTenant({
 					},
 					timeout: 150000
 				});
-			} catch (error) {
+			} catch (error: any) {
 				if (error.status === 409) {
 					console.log(
 						`Microservice ${id} already subscribed for tenant ${tenantId}, skipping...`
@@ -263,4 +322,4 @@ async function createTenant({
 	}
 }
 
-module.exports = { createTenant };
+export { createTenant };
