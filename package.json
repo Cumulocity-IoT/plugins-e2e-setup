@@ -2,10 +2,11 @@
   "name": "plugins-e2e-setup",
   "version": "1.0.0",
   "scripts": {
-    "build": "npm run build-collect-shell-versions & npm run build-get-shell-app & npm run build-create-tenant",
+    "build": "npm run build-collect-shell-versions & npm run build-get-shell-app & npm run build-create-tenant & npm run build-delete-tenant",
     "build-collect-shell-versions": "ncc build src/collect-shell-versions/action.ts -o dist/actions/collect-shell-versions -m & ncc build src/collect-shell-versions/index.ts -o dist/scripts/collect-shell-versions",
     "build-get-shell-app": "ncc build src/get-shell-app/action.ts -o dist/actions/get-shell-app -m & ncc build src/get-shell-app/index.ts -o dist/scripts/get-shell-app",
     "build-create-tenant": "ncc build src/create-tenant/action.ts -o dist/actions/create-tenant -m & ncc build src/create-tenant/index.ts -o dist/scripts/create-tenant",
+    "build-delete-tenant": "ncc build src/delete-tenant/action.ts -o dist/actions/delete-tenant -m & ncc build src/delete-tenant/index.ts -o dist/scripts/delete-tenant",
     "lint": "eslint --ext .ts .",
     "lint:staged": "lint-staged",
     "prepare": "husky install",

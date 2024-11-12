@@ -1,0 +1,22 @@
+name: Delete tenant
+description: 'Delete tenant'
+inputs:
+  cy-url:
+    description: "The url against which the environment should run."
+    required: true
+    type: string
+  cy-management-user:
+    description: "Management Tenant user"
+    required: true
+    type: string
+  cy-management-password:
+    description: "Management Tenant password"
+    required: true
+    type: string
+  cy-cmp:
+    description: "The company to delete."
+    required: true
+    type: string
+runs:
+  using: 'node20'
+  main: '../dist/actions/delete-tenant/index.js'
