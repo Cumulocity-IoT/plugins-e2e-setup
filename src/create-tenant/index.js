@@ -1,17 +1,12 @@
+// index.js
 'use strict';
 const _ = require('lodash');
-const Q = require('q');
 const crypto = require('crypto');
 
-// Sleep function
-function msleep(n) {
-	Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, n);
-}
 function sleep(n) {
-	msleep(n * 1000);
+	return new Promise(resolve => setTimeout(resolve, n * 1000));
 }
 
-// https://cumulocity.atlassian.net/browse/CD-3730
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
 
 const applicationsToBeSubscribed = [
@@ -20,8 +15,12 @@ const applicationsToBeSubscribed = [
 	'user-notification-ui-plugin'
 ];
 
-function executePromisesInOrder(fns) {
-	return _.reduce(fns, (promise, fn) => promise.then(fn), Q.resolve());
+async function executePromisesInOrder(fns) {
+	const results = [];
+	for (const fn of fns) {
+		results.push(await fn());
+	}
+	return results;
 }
 
 async function createTenant({
@@ -45,8 +44,7 @@ async function createTenant({
 
 	const c8yapi = require('./api.js')(managementUrl, {
 		user: managementUser,
-		pass: managementPassword,
-		sendImmediately: true
+		pass: managementPassword
 	});
 
 	const uuidv4 = () => {
@@ -58,49 +56,55 @@ async function createTenant({
 		);
 	};
 
-	const reqObj = {
-		method: 'POST',
-		body: {
-			company: companyName,
-			contactName: contactName,
-			contactPhone: '+48123456789',
-			adminName: user,
-			adminPass: password,
-			adminEmail: `${uuidv4()}@sharklasers.com`
-		},
-		timeout: 300000
+	const createTenants = async tenantNumber => {
+		const url = '/tenant/tenants';
+		const tenantIds = [];
+
+		for (let index = 0; index < tenantNumber; index++) {
+			try {
+				const body = {
+					company: companyName,
+					contactName: contactName,
+					contactPhone: '+48123456789',
+					domain: `${tenantName}${
+						noTenantSuffix === false ? index + 1 : ''
+					}.${domain}`,
+					adminName: user,
+					adminPass: password,
+					adminEmail: `${uuidv4()}@sharklasers.com`
+				};
+
+				const response = await c8yapi.req(url, {
+					method: 'POST',
+					body,
+					timeout: 300000,
+					headers: { Accept: 'application/json' }
+				});
+
+				if (response && response.id) {
+					console.log(`Tenant created with ID: ${response.id}`);
+					tenantIds.push(response.id);
+				} else {
+					throw new Error('No tenant ID in response');
+				}
+			} catch (error) {
+				console.error(`Failed to create tenant ${index + 1}:`, error);
+				throw error;
+			}
+		}
+
+		if (isManagement && isManagement !== 'false') {
+			await updateTenants(tenantIds);
+		}
+
+		return tenantIds;
 	};
 
-	const createTenants = tenantNumber => {
-		let arr = [];
-		let url = '/tenant/tenants';
-		return executePromisesInOrder(
-			_.times(tenantNumber, index => {
-				let modifiedObj = _.cloneDeep(reqObj);
-				modifiedObj.body.domain = `${tenantName}${
-					noTenantSuffix === false ? index + 1 : ''
-				}.${domain}`;
-				return arr.push(
-					c8yapi.req(url, modifiedObj).then(res => {
-						return res.id;
-					})
-				);
-			})
-		)
-			.then(() => Q.all(arr))
-			.then(arr =>
-				!isManagement || isManagement === 'false'
-					? Promise.resolve(arr)
-					: updateTenants(arr)
-			)
-			.then(() => arr);
-	};
-
-	const updateTenants = tenantIds => {
-		return executePromisesInOrder(
-			tenantIds.map(tenantId => {
-				let url = `/tenant/tenants/${tenantId}`;
-				let body = {
+	const updateTenants = async tenantIds => {
+		for (const tenantId of tenantIds) {
+			try {
+				const url = `/tenant/tenants/${tenantId}`;
+				await c8yapi.req(url, {
 					method: 'PUT',
 					body: {
 						allowCreateTenants: true,
@@ -109,128 +113,115 @@ async function createTenant({
 						}
 					},
 					timeout: 120000
-				};
-				return () => c8yapi.req(url, body);
-			})
-		);
+				});
+			} catch (error) {
+				console.error(`Failed to update tenant ${tenantId}:`, error);
+				throw error;
+			}
+		}
 	};
 
-	const getApplicationCollection = () => {
-		let url =
+	const getApplicationCollection = async () => {
+		const url =
 			'/application/applicationsByOwner/management?pageSize=1000&withTotalPages=true';
-		return c8yapi
-			.req(url)
-			.then(resp =>
-				resp.applications.map(elem => _.pick(elem, ['owner', 'name', 'id']))
-			);
+		const resp = await c8yapi.req(url);
+		return resp.applications.map(elem => _.pick(elem, ['owner', 'name', 'id']));
 	};
 
-	const getListOfPermissions = tenantId => {
-		let url = '/user/roles?pageSize=100&withTotalPages=true';
-		let auth = {
-			user: `${tenantId}/${user}`,
-			pass: password
-		};
-		return c8yapi
-			.req(url, { auth: auth })
-			.then(res => res.roles.map(elem => elem.id));
-	};
-
-	const getAdminRoleId = tenantId => {
-		let url = `/user/${tenantId}/groups?pageSize=100&withTotalPages=true`;
-		let obj = {
-			auth: {
-				user: `${tenantId}/${user}`,
-				pass: password,
-				sendImmediately: true
-			},
-			method: 'GET',
+	const getListOfPermissions = async tenantId => {
+		const url = '/user/roles?pageSize=100&withTotalPages=true';
+		const res = await c8yapi.req(url, {
 			headers: {
-				'content-type': 'application/json'
-			},
-			json: true
-		};
-		return c8yapi
-			.req(url, obj)
-			.then(resp => _.find(resp.groups, { name: 'admins' }))
-			.then(resp => resp.id);
-	};
-
-	const addPermissionsToRole = tenantId => {
-		let roleId;
-		return getAdminRoleId(tenantId)
-			.then(id => {
-				roleId = id;
-			})
-			.then(() => getListOfPermissions(tenantId))
-			.then(permissionsList =>
-				executePromisesInOrder(
-					permissionsList.map(permission => {
-						let url = `/user/${tenantId}/groups/${roleId}/roles`;
-						let obj = {
-							auth: {
-								user: `${tenantId}/${user}`,
-								pass: password
-							},
-							method: 'POST',
-							headers: {
-								'Content-Type':
-									'application/vnd.com.nsn.cumulocity.roleReference+json'
-							},
-							json: true,
-							body: {
-								role: {
-									id: permission,
-									name: permission,
-									self: `https://${tenantId}.${domain}/user/roles/${permission}`
-								}
-							}
-						};
-						return () => c8yapi.req(url, obj);
-					})
-				)
-			);
-	};
-
-	const findSubscriptionsIds = () => {
-		return getApplicationCollection().then(apps => {
-			let results = [];
-			apps.forEach(app => {
-				const matchingName = applicationsToBeSubscribed.find(
-					a => a === app.name && app.owner.tenant.id === 'management'
-				);
-				if (matchingName) {
-					results.push(app.id);
-				}
-			});
-			return results;
+				Authorization: `Basic ${Buffer.from(
+					`${tenantId}/${user}:${password}`
+				).toString('base64')}`
+			}
 		});
+		return res.roles.map(elem => elem.id);
 	};
 
-	const subscribeMicroservice = (idsToSubscribe, tenantId) => {
-		return executePromisesInOrder(
-			idsToSubscribe.map(id => {
-				let url = `/tenant/tenants/${tenantId}/applications`;
-				let obj = {
-					auth: {
-						user: managementUser,
-						pass: managementPassword
-					},
+	const getAdminRoleId = async tenantId => {
+		const url = `/user/${tenantId}/groups?pageSize=100&withTotalPages=true`;
+		const resp = await c8yapi.req(url, {
+			headers: {
+				Authorization: `Basic ${Buffer.from(
+					`${tenantId}/${user}:${password}`
+				).toString('base64')}`
+			}
+		});
+		const adminGroup = _.find(resp.groups, { name: 'admins' });
+		if (!adminGroup) throw new Error('Admin group not found');
+		return adminGroup.id;
+	};
+
+	const addPermissionsToRole = async tenantId => {
+		try {
+			const roleId = await getAdminRoleId(tenantId);
+			const permissionsList = await getListOfPermissions(tenantId);
+
+			for (const permission of permissionsList) {
+				const url = `/user/${tenantId}/groups/${roleId}/roles`;
+				await c8yapi.req(url, {
 					method: 'POST',
 					headers: {
-						'content-type': 'application/json'
+						Authorization: `Basic ${Buffer.from(
+							`${tenantId}/${user}:${password}`
+						).toString('base64')}`,
+						'Content-Type':
+							'application/vnd.com.nsn.cumulocity.roleReference+json'
 					},
-					json: true,
+					body: {
+						role: {
+							id: permission,
+							name: permission,
+							self: `https://${tenantId}.${domain}/user/roles/${permission}`
+						}
+					}
+				});
+			}
+		} catch (error) {
+			console.error(`Failed to add permissions for tenant ${tenantId}:`, error);
+			throw error;
+		}
+	};
+
+	const findSubscriptionsIds = async () => {
+		const apps = await getApplicationCollection();
+		return apps
+			.filter(
+				app =>
+					applicationsToBeSubscribed.includes(app.name) &&
+					app.owner.tenant.id === 'management'
+			)
+			.map(app => app.id);
+	};
+
+	const subscribeMicroservice = async (idsToSubscribe, tenantId) => {
+		for (const id of idsToSubscribe) {
+			try {
+				const url = `/tenant/tenants/${tenantId}/applications`;
+				await c8yapi.req(url, {
+					method: 'POST',
+					headers: {
+						Authorization: `Basic ${Buffer.from(
+							`${managementUser}:${managementPassword}`
+						).toString('base64')}`
+					},
 					body: {
 						application: {
 							id: `${id}`
 						}
 					},
 					timeout: 150000
-				};
-				return () => c8yapi.req(url, obj);
-			})
-		);
+				});
+			} catch (error) {
+				console.error(
+					`Failed to subscribe microservice ${id} for tenant ${tenantId}:`,
+					error
+				);
+				throw error;
+			}
+		}
 	};
 
 	try {
@@ -240,22 +231,18 @@ async function createTenant({
 			!_.includes(tenantIds, undefined) &&
 			tenantIds.length === numberOfTenants
 		) {
-			const prepareTenant = tenantIds.map(tenantId => {
-				return () =>
-					findSubscriptionsIds()
-						.then(idsToSubscribe =>
-							subscribeMicroservice(idsToSubscribe, tenantId)
-						)
-						.then(() => sleep(11))
-						.then(() => addPermissionsToRole(tenantId));
-			});
-			await executePromisesInOrder(prepareTenant);
-			return tenantIds[0]; // Return the first tenant ID
+			for (const tenantId of tenantIds) {
+				const idsToSubscribe = await findSubscriptionsIds();
+				await subscribeMicroservice(idsToSubscribe, tenantId);
+				await sleep(11);
+				await addPermissionsToRole(tenantId);
+			}
+			return tenantIds[0];
 		} else {
 			throw new Error('Some or all of the tenant creation failed!');
 		}
 	} catch (ex) {
-		console.error(ex);
+		console.error('Creation process failed:', ex);
 		throw ex;
 	}
 }

@@ -1,63 +1,69 @@
+// api.js
 'use strict';
-let request = require('request'),
-	Q = require('q'),
-	_ = require('lodash'),
-	_request = Q.denodeify(request);
 
 module.exports = function (host, auth) {
-	function setAuth(user, pass) {
-		auth = {
-			user: user,
-			pass: pass,
-			sendImmediately: true
-		};
-	}
-
-	function onError(resp, reqObj) {
-		let res = resp[1];
-		if (res && res.error) {
-			if (
-				res.message === undefined ||
-				(!res.message.includes('already has authority') &&
-					!res.message.includes('is already assigned to the tenant'))
-			) {
-				console.error('error in api.js: ' + res.error);
-				console.error('message: ' + res.message);
-				console.info('api request:\n', reqObj);
-				return resp[0]; // Can be used to check response statusCode.
+	async function req(path, params = {}) {
+		const reqObj = {
+			method: 'GET',
+			...params,
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Basic ${Buffer.from(
+					`${auth.user}:${auth.pass}`
+				).toString('base64')}`,
+				...(params.headers || {})
 			}
-		} else {
-			return resp[1];
+		};
+
+		try {
+			const controller = new AbortController();
+			const timeoutId = setTimeout(
+				() => controller.abort(),
+				params.timeout || 15000
+			);
+
+			const response = await fetch(host + path, {
+				...reqObj,
+				body:
+					reqObj.method !== 'GET' && reqObj.body
+						? JSON.stringify(reqObj.body)
+						: undefined,
+				signal: controller.signal
+			});
+
+			clearTimeout(timeoutId);
+
+			// Check if response is empty
+			const text = await response.text();
+			const data = text ? JSON.parse(text) : {};
+
+			if (!response.ok) {
+				const error = data.error || data.message;
+				if (
+					error &&
+					!error.includes('already has authority') &&
+					!error.includes('is already assigned to the tenant')
+				) {
+					console.error('error in api.js: ' + error);
+					console.info('api request:\n', reqObj);
+					throw new Error(error);
+				}
+			}
+
+			return data;
+		} catch (err) {
+			if (err.name === 'AbortError') {
+				throw new Error(`Request timeout after ${params.timeout || 15000}ms`);
+			}
+			console.log(`error in api.js: ${err.message}`);
+			console.info('api request:\n', reqObj);
+			throw err;
 		}
 	}
 
-	function req(path, params) {
-		let reqObj = {
-			url: host + path,
-			auth: auth,
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			json: true,
-			body: {},
-			timeout: 15000
-		};
-		_.assign(reqObj, params);
-		return _request(reqObj)
-			.then(res => {
-				return onError(res, reqObj);
-			})
-			.catch(err => {
-				console.log(`error in api.js: ${err.message}`);
-				console.info('api request:\n', reqObj);
-				process.exitCode = 1;
-				throw err;
-			});
-	}
-
 	return {
-		setAuth: setAuth,
-		req: req
+		req,
+		user: auth.user,
+		password: auth.pass
 	};
 };
