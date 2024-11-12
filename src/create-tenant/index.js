@@ -160,24 +160,34 @@ async function createTenant({
 			const permissionsList = await getListOfPermissions(tenantId);
 
 			for (const permission of permissionsList) {
-				const url = `/user/${tenantId}/groups/${roleId}/roles`;
-				await c8yapi.req(url, {
-					method: 'POST',
-					headers: {
-						Authorization: `Basic ${Buffer.from(
-							`${tenantId}/${user}:${password}`
-						).toString('base64')}`,
-						'Content-Type':
-							'application/vnd.com.nsn.cumulocity.roleReference+json'
-					},
-					body: {
-						role: {
-							id: permission,
-							name: permission,
-							self: `https://${tenantId}.${domain}/user/roles/${permission}`
+				try {
+					const url = `/user/${tenantId}/groups/${roleId}/roles`;
+					await c8yapi.req(url, {
+						method: 'POST',
+						headers: {
+							Authorization: `Basic ${Buffer.from(
+								`${tenantId}/${user}:${password}`
+							).toString('base64')}`,
+							'Content-Type':
+								'application/vnd.com.nsn.cumulocity.roleReference+json'
+						},
+						body: {
+							role: {
+								id: permission,
+								name: permission,
+								self: `https://${tenantId}.${domain}/user/roles/${permission}`
+							}
 						}
+					});
+				} catch (error) {
+					if (error.status === 409) {
+						console.log(
+							`Permission ${permission} already exists for tenant ${tenantId}, skipping...`
+						);
+						continue;
 					}
-				});
+					throw error;
+				}
 			}
 		} catch (error) {
 			console.error(`Failed to add permissions for tenant ${tenantId}:`, error);
@@ -215,6 +225,12 @@ async function createTenant({
 					timeout: 150000
 				});
 			} catch (error) {
+				if (error.status === 409) {
+					console.log(
+						`Microservice ${id} already subscribed for tenant ${tenantId}, skipping...`
+					);
+					continue;
+				}
 				console.error(
 					`Failed to subscribe microservice ${id} for tenant ${tenantId}:`,
 					error

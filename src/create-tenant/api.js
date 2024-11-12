@@ -46,7 +46,11 @@ module.exports = function (host, auth) {
 				) {
 					console.error('error in api.js: ' + error);
 					console.info('api request:\n', reqObj);
-					throw new Error(error);
+
+					// Include status code in error
+					const errorWithStatus = new Error(error);
+					errorWithStatus.status = response.status;
+					throw errorWithStatus;
 				}
 			}
 
