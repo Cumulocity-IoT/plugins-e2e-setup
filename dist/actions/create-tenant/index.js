@@ -86463,19 +86463,26 @@ async function createTenant(params) {
     async function subscribeMicroservice(idsToSubscribe, tenantId) {
         await executePromisesInOrder(idsToSubscribe.map(id => async () => {
             const url = `/tenant/tenants/${tenantId}/applications`;
-            return c8yapi.req(url, {
-                auth: {
-                    user: params.managementUser,
-                    pass: params.managementPassword
-                },
-                method: 'POST',
-                body: {
-                    application: {
-                        id: `${id}`
-                    }
-                },
-                timeout: 150000
-            });
+            try {
+                return await c8yapi.req(url, {
+                    auth: {
+                        user: params.managementUser,
+                        pass: params.managementPassword
+                    },
+                    method: 'POST',
+                    body: {
+                        application: {
+                            id: `${id}`
+                        }
+                    },
+                    timeout: 150000
+                });
+            }
+            catch (err) {
+                if (err?.statusCode === 409) {
+                    console.log(`App ${id} is already subscribed.`);
+                }
+            }
         }));
     }
     const tenantIds = await createTenants(params.numberOfTenants);
