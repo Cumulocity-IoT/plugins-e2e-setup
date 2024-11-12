@@ -6,7 +6,7 @@ import { createTenant } from './index';
  * This action downloads the shell app, extracts it to dist/apps folder.
  */
 const performAction = async () => {
-	const domainPrefix = getInput('domain-prefix');
+	const domainPrefix = getInput('cy-domain-prefix');
 	const user = getInput('cy-user');
 	const password = getInput('cy-password');
 	const email = getInput('cy-email');

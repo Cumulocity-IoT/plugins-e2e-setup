@@ -48617,7 +48617,7 @@ const index_1 = __nccwpck_require__(642);
  * This action downloads the shell app, extracts it to dist/apps folder.
  */
 const performAction = async () => {
-    const domainPrefix = (0, core_1.getInput)('domain-prefix');
+    const domainPrefix = (0, core_1.getInput)('cy-domain-prefix');
     const user = (0, core_1.getInput)('cy-user');
     const password = (0, core_1.getInput)('cy-password');
     const email = (0, core_1.getInput)('cy-email');
