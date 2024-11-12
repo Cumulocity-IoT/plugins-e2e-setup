@@ -17295,9 +17295,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createTenant = void 0;
-// index.ts
 const lodash_1 = __importDefault(__nccwpck_require__(250));
-const crypto_1 = __importDefault(__nccwpck_require__(113));
 const api_1 = __nccwpck_require__(624);
 function sleep(n) {
     return new Promise(resolve => setTimeout(resolve, n * 1000));
@@ -17322,7 +17320,7 @@ let applicationsToBeSubscribed = [
     'snmp-mib-parser',
     'sslmanagement'
 ];
-async function createTenant({ tenantName, managementUrl, user, password, managementUser, managementPassword, appsToSubscribe, isManagement = true, noTenantSuffix = false, companyName = 'e2eTesting tenant', contactName = 'Mr. Smith', numberOfTenants = 1 }) {
+async function createTenant({ tenantName, managementUrl, user, password, email, managementUser, managementPassword, appsToSubscribe, isManagement = true, noTenantSuffix = false, companyName = 'e2eTesting tenant', contactName = 'Mr. Smith', numberOfTenants = 1 }) {
     if (appsToSubscribe) {
         applicationsToBeSubscribed = appsToSubscribe.split(',');
     }
@@ -17338,10 +17336,6 @@ async function createTenant({ tenantName, managementUrl, user, password, managem
         user: managementUser,
         pass: managementPassword
     });
-    const uuidv4 = () => {
-        return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, c => (+c ^
-            (crypto_1.default.getRandomValues(new Uint8Array(1))[0] & (15 >> (+c / 4)))).toString(16));
-    };
     const createTenants = async (tenantNumber) => {
         const url = '/tenant/tenants';
         const tenantIds = [];
@@ -17354,7 +17348,7 @@ async function createTenant({ tenantName, managementUrl, user, password, managem
                     domain: `${tenantName}${noTenantSuffix === false ? index + 1 : ''}.${domain}`,
                     adminName: user,
                     adminPass: password,
-                    adminEmail: `${uuidv4()}@sharklasers.com`
+                    adminEmail: email
                 };
                 const response = await c8yapi.req(url, {
                     method: 'POST',
@@ -17520,14 +17514,6 @@ async function createTenant({ tenantName, managementUrl, user, password, managem
 }
 exports.createTenant = createTenant;
 
-
-/***/ }),
-
-/***/ 113:
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("crypto");
 
 /***/ })
 

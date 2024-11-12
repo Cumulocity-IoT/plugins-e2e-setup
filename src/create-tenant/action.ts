@@ -6,15 +6,17 @@ import { createTenant } from './index';
  * This action downloads the shell app, extracts it to dist/apps folder.
  */
 const performAction = async () => {
-	const c8yEnv = getInput('c8y-environment');
+	const domainPrefix = getInput('domain-prefix');
 	const user = getInput('cy-user');
 	const password = getInput('cy-password');
+	const email = getInput('cy-email');
 	const managementUser = getInput('cy-management-user');
 	const managementPassword = getInput('cy-management-password');
+	const managementUrl = getInput('cy-management-url');
 	const appsToSubscribe = getInput('apps-to-subscribe');
 
-	if (!c8yEnv) {
-		setFailed('c8yEnv property is required.');
+	if (!domainPrefix) {
+		setFailed('domain-prefix property is required.');
 	}
 	if (!user) {
 		setFailed('user property is required.');
@@ -28,17 +30,19 @@ const performAction = async () => {
 	if (!managementPassword) {
 		setFailed('managementPassword property is required.');
 	}
+	if (!managementUrl) {
+		setFailed('managementUrl property is required.');
+	}
 
-	const domainPrefix = `uic8y-cy-${context.runId}-${context.runNumber}`;
-	console.log('Domain prefix:', domainPrefix);
 	const contactName = context.actor;
 	const companyName = `uic8y-cy-${context.runId}`;
 
 	const tenantId = await createTenant({
 		tenantName: domainPrefix,
-		managementUrl: `https://management.${c8yEnv}`,
+		managementUrl,
 		user,
 		password,
+		email,
 		managementUser,
 		managementPassword,
 		isManagement: true,
@@ -50,7 +54,6 @@ const performAction = async () => {
 	});
 	console.log('Tenant ID:', tenantId);
 
-	setOutput('domain-prefix', domainPrefix);
 	setOutput('tenant-id', tenantId);
 };
 

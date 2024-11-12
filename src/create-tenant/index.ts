@@ -1,6 +1,4 @@
-// index.ts
 import _ from 'lodash';
-import crypto from 'crypto';
 import { ApiClient, createApiClient } from './api';
 
 function sleep(n: number): Promise<void> {
@@ -34,6 +32,7 @@ interface CreateTenantParams {
 	managementUrl: string;
 	user: string;
 	password: string;
+	email?: string;
 	managementUser: string;
 	managementPassword: string;
 	isManagement?: boolean;
@@ -76,6 +75,7 @@ async function createTenant({
 	managementUrl,
 	user,
 	password,
+	email,
 	managementUser,
 	managementPassword,
 	appsToSubscribe,
@@ -103,15 +103,6 @@ async function createTenant({
 		pass: managementPassword
 	});
 
-	const uuidv4 = (): string => {
-		return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, c =>
-			(
-				+c ^
-				(crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (+c / 4)))
-			).toString(16)
-		);
-	};
-
 	const createTenants = async (tenantNumber: number): Promise<string[]> => {
 		const url = '/tenant/tenants';
 		const tenantIds: string[] = [];
@@ -127,7 +118,7 @@ async function createTenant({
 					}.${domain}`,
 					adminName: user,
 					adminPass: password,
-					adminEmail: `${uuidv4()}@sharklasers.com`
+					adminEmail: email
 				};
 
 				const response = await c8yapi.req<TenantResponse>(url, {

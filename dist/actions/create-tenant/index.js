@@ -46482,9 +46482,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createTenant = void 0;
-// index.ts
 const lodash_1 = __importDefault(__nccwpck_require__(250));
-const crypto_1 = __importDefault(__nccwpck_require__(6113));
 const api_1 = __nccwpck_require__(3624);
 function sleep(n) {
     return new Promise(resolve => setTimeout(resolve, n * 1000));
@@ -46509,7 +46507,7 @@ let applicationsToBeSubscribed = [
     'snmp-mib-parser',
     'sslmanagement'
 ];
-async function createTenant({ tenantName, managementUrl, user, password, managementUser, managementPassword, appsToSubscribe, isManagement = true, noTenantSuffix = false, companyName = 'e2eTesting tenant', contactName = 'Mr. Smith', numberOfTenants = 1 }) {
+async function createTenant({ tenantName, managementUrl, user, password, email, managementUser, managementPassword, appsToSubscribe, isManagement = true, noTenantSuffix = false, companyName = 'e2eTesting tenant', contactName = 'Mr. Smith', numberOfTenants = 1 }) {
     if (appsToSubscribe) {
         applicationsToBeSubscribed = appsToSubscribe.split(',');
     }
@@ -46525,10 +46523,6 @@ async function createTenant({ tenantName, managementUrl, user, password, managem
         user: managementUser,
         pass: managementPassword
     });
-    const uuidv4 = () => {
-        return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, c => (+c ^
-            (crypto_1.default.getRandomValues(new Uint8Array(1))[0] & (15 >> (+c / 4)))).toString(16));
-    };
     const createTenants = async (tenantNumber) => {
         const url = '/tenant/tenants';
         const tenantIds = [];
@@ -46541,7 +46535,7 @@ async function createTenant({ tenantName, managementUrl, user, password, managem
                     domain: `${tenantName}${noTenantSuffix === false ? index + 1 : ''}.${domain}`,
                     adminName: user,
                     adminPass: password,
-                    adminEmail: `${uuidv4()}@sharklasers.com`
+                    adminEmail: email
                 };
                 const response = await c8yapi.req(url, {
                     method: 'POST',
@@ -48623,14 +48617,16 @@ const index_1 = __nccwpck_require__(642);
  * This action downloads the shell app, extracts it to dist/apps folder.
  */
 const performAction = async () => {
-    const c8yEnv = (0, core_1.getInput)('c8y-environment');
+    const domainPrefix = (0, core_1.getInput)('domain-prefix');
     const user = (0, core_1.getInput)('cy-user');
     const password = (0, core_1.getInput)('cy-password');
+    const email = (0, core_1.getInput)('cy-email');
     const managementUser = (0, core_1.getInput)('cy-management-user');
     const managementPassword = (0, core_1.getInput)('cy-management-password');
+    const managementUrl = (0, core_1.getInput)('cy-management-url');
     const appsToSubscribe = (0, core_1.getInput)('apps-to-subscribe');
-    if (!c8yEnv) {
-        (0, core_1.setFailed)('c8yEnv property is required.');
+    if (!domainPrefix) {
+        (0, core_1.setFailed)('domain-prefix property is required.');
     }
     if (!user) {
         (0, core_1.setFailed)('user property is required.');
@@ -48644,15 +48640,17 @@ const performAction = async () => {
     if (!managementPassword) {
         (0, core_1.setFailed)('managementPassword property is required.');
     }
-    const domainPrefix = `uic8y-cy-${github_1.context.runId}-${github_1.context.runNumber}`;
-    console.log('Domain prefix:', domainPrefix);
+    if (!managementUrl) {
+        (0, core_1.setFailed)('managementUrl property is required.');
+    }
     const contactName = github_1.context.actor;
     const companyName = `uic8y-cy-${github_1.context.runId}`;
     const tenantId = await (0, index_1.createTenant)({
         tenantName: domainPrefix,
-        managementUrl: `https://management.${c8yEnv}`,
+        managementUrl,
         user,
         password,
+        email,
         managementUser,
         managementPassword,
         isManagement: true,
@@ -48663,7 +48661,6 @@ const performAction = async () => {
         appsToSubscribe
     });
     console.log('Tenant ID:', tenantId);
-    (0, core_1.setOutput)('domain-prefix', domainPrefix);
     (0, core_1.setOutput)('tenant-id', tenantId);
 };
 performAction().catch(error => {

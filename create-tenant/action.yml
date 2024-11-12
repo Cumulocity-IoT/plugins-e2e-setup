@@ -1,8 +1,8 @@
 name: Create tenant
 description: 'Create tenant'
 inputs:
-  c8y-environment:
-    description: "Cumulocity instance"
+  cy-domain-prefix:
+    description: "Domain prefix"
     required: true
     type: string
   cy-user:
@@ -14,6 +14,11 @@ inputs:
     description: "Password"
     required: true
     type: string
+  cy-email:
+    description: "Email"
+    required: false
+    type: string
+    default: 'test@test.com'
   cy-management-user:
     description: "Management Tenant user"
     required: true
@@ -22,13 +27,15 @@ inputs:
     description: "Management Tenant password"
     required: true
     type: string
+  cy-management-url:
+    description: "Management Tenant URL"
+    required: true
+    type: string
   apps-to-subscribe:
     description: 'List of comma separated apps to subscribe to tenant'
     required: false
     default: ''
 outputs:
-  domain-prefix:
-    description: "Domain prefix to access tenant e.g. https://<domain-prefix>.<c8y-environment>"
   tenant-id:
     description: "Tenant id"
 runs:
