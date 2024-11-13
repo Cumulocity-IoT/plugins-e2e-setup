@@ -19,6 +19,10 @@ inputs:
     required: false
     type: string
     default: 'test@test.com'
+  cy-company-name:
+    description: "Company name"
+    required: true
+    type: string
   cy-management-user:
     description: "Management Tenant user"
     required: true

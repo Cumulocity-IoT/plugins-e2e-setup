@@ -17320,7 +17320,7 @@ let applicationsToBeSubscribed = [
     'snmp-mib-parser',
     'sslmanagement'
 ];
-async function createTenant({ tenantName, managementUrl, user, password, email, managementUser, managementPassword, appsToSubscribe, isManagement = true, noTenantSuffix = false, companyName = 'e2eTesting tenant', contactName = 'Mr. Smith', numberOfTenants = 1 }) {
+async function createTenant({ tenantName, managementUrl, user, password, email, managementUser, managementPassword, appsToSubscribe, isManagement = true, noTenantSuffix = false, companyName, contactName = 'Mr. Smith', numberOfTenants = 1 }) {
     if (appsToSubscribe) {
         applicationsToBeSubscribed = appsToSubscribe.split(',');
     }

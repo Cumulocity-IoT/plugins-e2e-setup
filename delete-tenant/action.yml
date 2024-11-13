@@ -13,7 +13,7 @@ inputs:
     description: "Management Tenant password"
     required: true
     type: string
-  cy-cmp:
+  cy-company:
     description: "The company to delete."
     required: true
     type: string

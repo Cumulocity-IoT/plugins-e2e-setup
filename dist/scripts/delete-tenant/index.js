@@ -52,7 +52,6 @@ var __webpack_exports__ = {};
 (() => {
 var exports = __webpack_exports__;
 
-// delete-tenant/index.ts
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.deleteTenant = void 0;
 const promises_1 = __nccwpck_require__(670);

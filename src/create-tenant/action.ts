@@ -10,6 +10,7 @@ const performAction = async () => {
 	const user = getInput('cy-user');
 	const password = getInput('cy-password');
 	const email = getInput('cy-email');
+	const companyName = getInput('cy-company-name');
 	const managementUser = getInput('cy-management-user');
 	const managementPassword = getInput('cy-management-password');
 	const managementUrl = getInput('cy-management-url');
@@ -24,6 +25,9 @@ const performAction = async () => {
 	if (!password) {
 		setFailed('password property is required.');
 	}
+	if (!companyName) {
+		setFailed('company name property is required.');
+	}
 	if (!managementUser) {
 		setFailed('managementUser property is required.');
 	}
@@ -35,7 +39,6 @@ const performAction = async () => {
 	}
 
 	const contactName = context.actor;
-	const companyName = `uic8y-cy-${context.runId}`;
 
 	const tenantId = await createTenant({
 		tenantName: domainPrefix,

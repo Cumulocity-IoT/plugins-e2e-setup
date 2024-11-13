@@ -141,7 +141,7 @@ jobs:
     environment:
       name: "latest-stage"
     outputs:
-      domain-prefix: ${{ steps.create-tenant.outputs.domain-prefix }}
+      domain-prefix: ${{ steps.create-domain-prefix.outputs.domain-prefix }}
       tenant-id: ${{ steps.create-tenant.outputs.tenant-id }}
 
     steps:
@@ -155,28 +155,82 @@ jobs:
         with:
           node-version: 20
 
+      - name: Create domain prefix
+        id: create-domain-prefix
+        run: echo "domain-prefix=uic8y-cy-${{ github.run_id }}-${{ github.run_attempt }}" >> $GITHUB_OUTPUT
+
       - name: Create tenant
         id: create-tenant
         uses: Cumulocity-IoT/plugins-e2e-setup/create-tenant@main
         with:
-          c8y-environment: "latest.stage"
+          cy-domain-prefix: ${{ steps.create-domain-prefix.outputs.domain-prefix }}
           cy-user: "admin"
           cy-password: "Test123"
+          cy-email: "test@test.com"
           cy-management-user: "tenantadmin"
           cy-management-password: "Test1234"
-          apps-to-subscribe: user-notification,user-notification-w,user-notification-ui-plugin
+          cy-management-url: "https://management.latest.stage.io/"
+          apps-to-subscribe: "user-notification,user-notification-w,user-notification-ui-plugin"
 ```
 
 ### Inputs
 
 You can modify action's behavior with inputs below:
 
-- `c8y-environment`: string; name of the environment to create tenant in. Required. E.g. "latest.stage".
+- `cy-domain-prefix: string`: domain prefix of the tenant. Required. Tenant will be later accessible under `https://<cy-domain-prefix>.latest.stage.io`.
 - `cy-user`: string; user name of the tenant. Optional, default value: "admin".
 - `cy-password`: string; password of the tenant. Required.
+- `cy-email`: string; email of the tenant. Optional, default value: "test@test.com"
 - `cy-management-user`: string; user name of the tenant management user. Required.
 - `cy-management-password`: string; password of the tenant management user. Required.
+- `cy-management-url`: string; URL of the tenant management. Required.
 - `apps-to-subscribe`: string; comma separated list of apps to subscribe. Optional. 
+
+## Delete tenant action
+
+This action deletes a tenant with url.
+
+### Usage
+
+Action can be utilized for e2e testing purposes. Management tenant credentials are necessary for this job.
+
+```yaml
+jobs:
+  delete-tenant:
+  needs: [create-tenant, setup-env, run-cypress-tests]
+  timeout-minutes: 30
+  runs-on: c8y-ui-cicd-docker
+  environment:
+    name: "latest-stage"
+
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+
+    - name: Use Node.js ${{ env.NODE_VERSION }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: Delete tenant
+      id: delete-tenant
+      uses: Cumulocity-IoT/plugins-e2e-setup/delete-tenant@main
+      with:
+        cy-url: https://uic8y-cy-11798575014-1.latest.stage.io/
+        cy-management-user: ${{ secrets.USER }}
+        cy-management-password: ${{ secrets.PASSWORD }}
+        cy-company: uic8y-cy-${{ github.run_id }}
+```
+
+### Inputs
+
+You can modify action's behavior with inputs below:
+- `cy-url`: string; URL of the tenant. Required.
+- `cy-management-user`: string; name of the tenant management user. Required.
+- `cy-management-password`: string; password of the tenant management user. Required.
+- `cy-company`: string; company name of the tenant. Required.
 
 ## Features as scripts
 

@@ -8,7 +8,7 @@ const performAction = async () => {
 	const url = getInput('cy-url');
 	const managementUser = getInput('cy-management-user');
 	const managementPassword = getInput('cy-management-password');
-	const companyName = getInput('cy-cmp');
+	const companyName = getInput('cy-company');
 
 	if (!url) {
 		setFailed('url property is required.');

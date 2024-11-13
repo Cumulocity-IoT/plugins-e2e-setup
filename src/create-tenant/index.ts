@@ -81,7 +81,7 @@ async function createTenant({
 	appsToSubscribe,
 	isManagement = true,
 	noTenantSuffix = false,
-	companyName = 'e2eTesting tenant',
+	companyName,
 	contactName = 'Mr. Smith',
 	numberOfTenants = 1
 }: CreateTenantParams): Promise<string> {
