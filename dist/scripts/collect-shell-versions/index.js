@@ -2,7 +2,7 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 380:
+/***/ 381:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
@@ -31,8 +31,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.filterOutDeprecatedDistTags = void 0;
-const child_process_1 = __nccwpck_require__(81);
-const util = __importStar(__nccwpck_require__(837));
+const child_process_1 = __nccwpck_require__(317);
+const util = __importStar(__nccwpck_require__(23));
 const execPromise = util.promisify(child_process_1.exec);
 /**
  * Filters out deprecated versions from the distribution tags of a package.
@@ -72,7 +72,7 @@ async function isDeprecated(packageName, version) {
 
 /***/ }),
 
-/***/ 706:
+/***/ 778:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
@@ -101,8 +101,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getDistTagsObject = void 0;
-const child_process_1 = __nccwpck_require__(81);
-const util = __importStar(__nccwpck_require__(837));
+const child_process_1 = __nccwpck_require__(317);
+const util = __importStar(__nccwpck_require__(23));
 const execPromise = util.promisify(child_process_1.exec);
 /**
  * Fetches the distribution tags for a given npm package.
@@ -125,7 +125,7 @@ exports.getDistTagsObject = getDistTagsObject;
 
 /***/ }),
 
-/***/ 382:
+/***/ 729:
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -184,14 +184,14 @@ function getShellVersionOutputElement([tag, version]) {
 
 /***/ }),
 
-/***/ 81:
+/***/ 317:
 /***/ ((module) => {
 
 module.exports = require("child_process");
 
 /***/ }),
 
-/***/ 837:
+/***/ 23:
 /***/ ((module) => {
 
 module.exports = require("util");
@@ -237,15 +237,15 @@ module.exports = require("util");
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+// This entry need to be wrapped in an IIFE because it uses a non-standard name for the exports (exports).
 (() => {
 var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.collectShellVersions = void 0;
-const package_dist_tags_1 = __nccwpck_require__(706);
-const filter_out_deprecated_dist_tags_1 = __nccwpck_require__(380);
-const prepare_shell_versions_output_1 = __nccwpck_require__(382);
+const package_dist_tags_1 = __nccwpck_require__(778);
+const filter_out_deprecated_dist_tags_1 = __nccwpck_require__(381);
+const prepare_shell_versions_output_1 = __nccwpck_require__(729);
 /**
  * Collects versions of the shell for the given package name.
  * @param {CollectShellVersionsParams} arg The parameters object for collecting shell versions.

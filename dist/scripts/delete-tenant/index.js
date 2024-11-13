@@ -2,7 +2,7 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 670:
+/***/ 460:
 /***/ ((module) => {
 
 module.exports = require("timers/promises");
@@ -48,13 +48,13 @@ module.exports = require("timers/promises");
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+// This entry need to be wrapped in an IIFE because it uses a non-standard name for the exports (exports).
 (() => {
 var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.deleteTenant = void 0;
-const promises_1 = __nccwpck_require__(670);
+const promises_1 = __nccwpck_require__(460);
 const sleep = async (seconds) => {
     await (0, promises_1.setTimeout)(seconds * 1000);
 };
